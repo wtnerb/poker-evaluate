@@ -1,6 +1,7 @@
 package main
 
 import (
+	"poker/models"
 	"sort"
 )
 
@@ -46,7 +47,33 @@ func (r handRank) String() string {
 
 func rankHand(hand []card) handRank {
 	pairs := numPairs(hand)
+	str := isStraight(hand)
+	fl := isFlush(hand)
+	if str && fl {
+		return straightFlush
+	}
 	switch pairs {
+	case 6:
+		return fourOfAKind
+	case 4:
+		return fullHouse
+	}
+	if fl {
+		return flush
+	}
+	if str {
+		return straight
+	}
+	switch pairs {
+	case 3:
+		for i := 0; i < len(hand)-2; i++ {
+			if hand[i].Value == hand[i+2].Value {
+				return threeOfAKind
+			}
+		}
+		return twoPair
+	case 2:
+		return twoPair
 	case 1:
 		return pair
 	}
@@ -80,4 +107,66 @@ func (hand h) Swap(i, j int) {
 
 func (hand h) Len() int {
 	return len(hand)
+}
+
+// TODO: Too much logic here. Should be broken up.
+func isStraight(hand []card) bool {
+	// checking for a straight is much easier without worrying about
+	// duplicate values in the middle of the sorted straight.
+	noDups := []card{hand[0]}
+	for _, c := range hand {
+		if c.Value != noDups[len(noDups)-1].Value {
+			noDups = append(noDups, c)
+		}
+	}
+
+	// if there are not at least 5 distinct values, a straight is
+	// impossible
+	if len(noDups) < 5 {
+		return false
+	}
+
+	// double for loop is inefficient, but hand size should be <= 7, so
+	// efficiency at the asymtote is not relevant.
+	for i := 0; i < len(noDups)-4; i++ {
+		maybe := true
+		for j := 1; j < 5; j++ {
+			if int(noDups[i+j].Value) != int(noDups[i].Value)+j {
+				maybe = false
+				break
+			}
+		}
+		if maybe {
+			return true
+		}
+	}
+
+	//special logic for ace switching to be a 'one' value
+	if noDups[len(noDups)-1].Value == models.ACE {
+		for i := 0; i < 4; i++ {
+			if int(noDups[i].Value) != 2+i {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
+func isFlush(hand []card) bool {
+	// count up the number of cards of each suit
+	var count [5]int
+	for _, c := range hand {
+		count[c.Suit]++
+	}
+
+	// check counts of suit
+	for _, c := range count {
+		if c >= 5 {
+			return true
+		}
+	}
+
+	// if no flushes have been found, return false
+	return false
 }

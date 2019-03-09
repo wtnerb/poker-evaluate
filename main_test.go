@@ -78,6 +78,72 @@ func TestRankHand(t *testing.T) {
 				card{12, 2},
 			}, pair,
 		},
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{5, 1},
+				card{12, 1},
+				card{11, 1},
+				card{2, 4},
+			}, threeOfAKind,
+		},
+		{
+			[]card{
+				card{2, 1},
+				card{2, 2},
+				card{3, 1},
+				card{5, 1},
+				card{12, 1},
+				card{11, 1},
+				card{2, 4},
+			}, flush,
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{5, 1},
+				card{5, 3},
+				card{11, 1},
+				card{11, 2},
+			}, twoPair,
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{4, 2},
+				card{3, 4},
+				card{6, 1},
+				card{5, 3},
+				card{11, 1},
+				card{11, 2},
+			}, straight,
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{4, 2},
+				card{3, 4},
+				card{6, 1},
+				card{5, 3},
+				card{11, 1},
+				card{5, 2},
+			}, straight,
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{4, 2},
+				card{3, 4},
+				card{14, 1},
+				card{5, 3},
+				card{11, 1},
+				card{5, 2},
+			}, straight,
+		},
 	}
 
 	for _, test := range tests {
