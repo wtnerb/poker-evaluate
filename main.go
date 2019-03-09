@@ -10,19 +10,8 @@ func main() {
 	fmt.Println("hello world!")
 }
 
+// makes refering to the card type much easier
 type card = models.Card
-
-const (
-	highcard int = iota
-	pair
-	twoPair
-	threeOfAKind
-	straight
-	flush
-	fullHouse
-	fourOfAKind
-	straightFlush
-)
 
 func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
 	// if table.Players[0] == nil {

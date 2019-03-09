@@ -61,3 +61,29 @@ func TestEvaluateHands(t *testing.T) {
 		}
 	}
 }
+
+func TestRankHand(t *testing.T) {
+	tests := []struct {
+		hand []card
+		rank handRank
+	}{
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{5, 1},
+				card{7, 1},
+				card{11, 1},
+				card{12, 2},
+			}, pair,
+		},
+	}
+
+	for _, test := range tests {
+		actual := rankHand(test.hand)
+		if actual != test.rank {
+			t.Errorf("Hand ranked incorrectly. %v\nranked as %v should be %v", test.hand, actual, test.rank)
+		}
+	}
+}
