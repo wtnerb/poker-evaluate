@@ -41,23 +41,31 @@ func TestEvaluateHands(t *testing.T) {
 	tests := []struct {
 		hands    [][2]card
 		table    []card
-		expected int
+		expected []handRank
 	}{
 		{
 			[][2]card{
 				[2]card{card{2, 3}, card{2, 2}},
 				[2]card{card{3, 1}, card{4, 2}},
-				[2]card{card{4, 1}, card{3, 2}},
+				[2]card{card{4, 1}, card{models.ACE, 2}},
 			},
-			[]card{card{5, 1}, card{11, 2}, card{13, 3}, card{7, 4}, card{9, 4}},
-			0,
+			[]card{
+				card{5, 1},
+				card{11, 2},
+				card{6, 3},
+				card{7, 4},
+				card{9, 4}},
+			[]handRank{pair, straight, highcard},
 		},
 	}
 
 	for _, test := range tests {
-		winner := evaluateHands(test.table, test.hands)
-		if winner != test.expected {
-			t.Errorf("Somebody won who was not supposed to win! \nexpected %d, got %d\ntable: %v\nhands: %v", test.expected, winner, test.table, test.hands)
+		ranks := rankHands(test.table, test.hands)
+		for i := range test.expected {
+			if ranks[i] != test.expected[i] {
+				t.Errorf("A hand was not ranked correctly! hand number %d, expected %v, got %v\ntable: %v\nhands: %v", i, test.expected[i], ranks[i], test.table, test.hands)
+			}
+
 		}
 	}
 }
@@ -131,7 +139,7 @@ func TestRankHand(t *testing.T) {
 				card{5, 3},
 				card{11, 1},
 				card{5, 2},
-			}, flush,
+			}, straight,
 		},
 		{
 			[]card{
@@ -149,7 +157,7 @@ func TestRankHand(t *testing.T) {
 				card{2, 3},
 				card{4, 2},
 				card{3, 4},
-				card{14, 1}, //testing that Ace's will switch to a one when needed
+				card{models.ACE, 1}, //testing that Ace's will switch to a one when needed
 				card{5, 3},
 				card{11, 1},
 				card{5, 2},

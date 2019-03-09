@@ -34,6 +34,11 @@ func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
 	return models.TablePlayer{}, errors.New("the winner could not be determined")
 }
 
-func evaluateHands(faceUp []card, holeCards [][2]card) int {
-	return 0
+// looks at hands from texas hold'em and returns the ranks of each hand
+func rankHands(faceUp []card, holeCards [][2]card) []handRank {
+	ranks := make([]handRank, len(holeCards))
+	for i := range holeCards {
+		ranks[i] = rankHand(append(faceUp, holeCards[i][0], holeCards[i][1]))
+	}
+	return ranks
 }
