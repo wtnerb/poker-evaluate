@@ -12,6 +12,18 @@ func main() {
 
 type card = models.Card
 
+const (
+	highcard int = iota
+	pair
+	twoPair
+	threeOfAKind
+	straight
+	flush
+	fullHouse
+	fourOfAKind
+	straightFlush
+)
+
 func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
 	// if table.Players[0] == nil {
 	// 	panic("there are no players at the table!")
@@ -34,5 +46,5 @@ func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
 }
 
 func evaluateHands(faceUp []card, holeCards [][2]card) int {
-	return 1
+	return 0
 }
