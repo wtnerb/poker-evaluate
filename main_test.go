@@ -131,14 +131,25 @@ func TestRankHand(t *testing.T) {
 				card{5, 3},
 				card{11, 1},
 				card{5, 2},
-			}, straight,
+			}, flush,
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{4, 3},
+				card{3, 3},
+				card{6, 3},
+				card{5, 3},
+				card{11, 1},
+				card{5, 4},
+			}, straightFlush,
 		},
 		{
 			[]card{
 				card{2, 3},
 				card{4, 2},
 				card{3, 4},
-				card{14, 1},
+				card{14, 1}, //testing that Ace's will switch to a one when needed
 				card{5, 3},
 				card{11, 1},
 				card{5, 2},

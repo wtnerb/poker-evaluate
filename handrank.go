@@ -8,7 +8,7 @@ import (
 type handRank int
 type h []card
 
-const (
+const ( // This list and the ranks in the String method _MUST_ match
 	highcard handRank = iota
 	pair
 	twoPair
@@ -21,28 +21,18 @@ const (
 )
 
 func (r handRank) String() string {
-	switch r {
-	case pair:
-		return "pair"
-	case twoPair:
-		return "two pair"
-	case threeOfAKind:
-		return "three of a kind"
-	case fourOfAKind:
-		return "three of a kind"
-	case straight:
-		return "straight"
-	case flush:
-		return "flush"
-	case straightFlush:
-		return "straight flush"
-	case fullHouse:
-		return "full house"
-	case highcard:
-		return "highcard"
-	default:
-		panic("invalid hand rank")
+	ranks := []string{ // This list _MUST_ match the constants above
+		"highcard",
+		"pair",
+		"two pair",
+		"three of a kind",
+		"straight",
+		"flush",
+		"full house",
+		"four of a kind",
+		"straight flush",
 	}
+	return ranks[r]
 }
 
 func rankHand(hand []card) handRank {
@@ -66,6 +56,7 @@ func rankHand(hand []card) handRank {
 	}
 	switch pairs {
 	case 3:
+		// with seven cards, it is possible to have three pairs OR a three of a kind
 		for i := 0; i < len(hand)-2; i++ {
 			if hand[i].Value == hand[i+2].Value {
 				return threeOfAKind
