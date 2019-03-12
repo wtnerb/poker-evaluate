@@ -37,9 +37,8 @@ func (r handRank) String() string {
 
 func rankHand(hand []card) handRank {
 	pairs := numPairs(hand)
-	str := isStraight(hand)
 	fl := isFlush(hand)
-	if str && fl {
+	if fl && isStraightFlush(hand) {
 		return straightFlush
 	}
 	switch pairs {
@@ -51,7 +50,7 @@ func rankHand(hand []card) handRank {
 	if fl {
 		return flush
 	}
-	if str {
+	if isStraight(hand) {
 		return straight
 	}
 	switch pairs {
@@ -159,5 +158,18 @@ func isFlush(hand []card) bool {
 	}
 
 	// if no flushes have been found, return false
+	return false
+}
+
+func isStraightFlush(hand []card) bool {
+	var suited [5][]card
+	for _, c := range hand {
+		suited[c.Suit] = append(suited[c.Suit], c)
+	}
+	for _, suit := range suited {
+		if len(suit) >= 5 && isStraight(suit) {
+			return true
+		}
+	}
 	return false
 }

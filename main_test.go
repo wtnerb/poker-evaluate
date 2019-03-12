@@ -155,6 +155,17 @@ func TestRankHand(t *testing.T) {
 		{
 			[]card{
 				card{2, 3},
+				card{4, 3},
+				card{3, 3},
+				card{6, 1},
+				card{5, 3},
+				card{11, 3},
+				card{5, 4},
+			}, flush,
+		},
+		{
+			[]card{
+				card{2, 3},
 				card{4, 2},
 				card{3, 4},
 				card{models.ACE, 1}, //testing that Ace's will switch to a one when needed
@@ -169,6 +180,42 @@ func TestRankHand(t *testing.T) {
 		actual := rankHand(test.hand)
 		if actual != test.rank {
 			t.Errorf("Hand ranked incorrectly. %v\nranked as %v should be %v", test.hand, actual, test.rank)
+		}
+	}
+}
+
+func TestBestHand(t *testing.T) {
+	tests := []struct {
+		hand []card
+		best best_hand
+	}{
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{5, 1},
+				card{7, 1},
+				card{11, 1},
+				card{12, 2},
+			}, best_hand{
+				[5]card{
+					card{2, 3},
+					card{2, 2},
+					card{12, 2},
+					card{11, 1},
+					card{7, 1},
+				},
+				pair,
+			},
+		},
+	}
+	for _, test := range tests {
+		actual := buildBestHand(test.hand)
+		for _, c := range actual.cards {
+			if !containsCard(test.best.cards[:], c) {
+				t.Error("there is a missing card!", test.best.cards, actual.cards)
+			}
 		}
 	}
 }
