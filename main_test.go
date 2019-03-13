@@ -209,6 +209,86 @@ func TestBestHand(t *testing.T) {
 				pair,
 			},
 		},
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{5, 1},
+				card{7, 1},
+				card{11, 1},
+				card{11, 2},
+			}, best_hand{
+				[5]card{
+					card{2, 3},
+					card{2, 2},
+					card{11, 2},
+					card{11, 1},
+					card{7, 1},
+				},
+				pair,
+			},
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{2, 2},
+				card{3, 4},
+				card{7, 3},
+				card{7, 1},
+				card{11, 1},
+				card{11, 2},
+			}, best_hand{
+				[5]card{
+					card{3, 4},
+					card{7, 1},
+					card{7, 3},
+					card{11, 2},
+					card{11, 1},
+				},
+				pair,
+			},
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{8, 2},
+				card{3, 4},
+				card{11, 3},
+				card{7, 1},
+				card{2, 1},
+				card{2, 2},
+			}, best_hand{
+				[5]card{
+					card{8, 2},
+					card{11, 3},
+					card{2, 3},
+					card{2, 2},
+					card{2, 1},
+				},
+				threeOfAKind,
+			},
+		},
+		{
+			[]card{
+				card{2, 3},
+				card{8, 2},
+				card{2, 4},
+				card{11, 3},
+				card{7, 1},
+				card{2, 1},
+				card{2, 2},
+			}, best_hand{
+				[5]card{
+					card{2, 4},
+					card{11, 3},
+					card{2, 3},
+					card{2, 2},
+					card{2, 1},
+				},
+				threeOfAKind,
+			},
+		},
 	}
 	for _, test := range tests {
 		actual := buildBestHand(test.hand)
