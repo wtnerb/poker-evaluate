@@ -298,6 +298,26 @@ func TestBestHand(t *testing.T) {
 			[]card{
 				card{TWO, CLUB},
 				card{EIGHT, HEART},
+				card{THREE, DIAMOND},
+				card{JACK, CLUB},
+				card{THREE, SPADE},
+				card{TWO, SPADE},
+				card{TWO, HEART},
+			}, bestHand{
+				[5]card{
+					card{THREE, DIAMOND},
+					card{JACK, CLUB},
+					card{THREE, SPADE},
+					card{TWO, HEART},
+					card{TWO, SPADE},
+				},
+				fullHouse,
+			},
+		},
+		{
+			[]card{
+				card{TWO, CLUB},
+				card{EIGHT, HEART},
 				card{TWO, DIAMOND},
 				card{JACK, CLUB},
 				card{SEVEN, SPADE},
@@ -399,7 +419,9 @@ func TestBestHand(t *testing.T) {
 		actual := buildBestHand(test.hand)
 		for _, c := range actual.cards {
 			if !containsCard(test.best.cards[:], c) {
-				t.Error("there is at least one missing/incorrect card!", test.best.cards, actual.cards)
+				t.Error("there is at least one missing/incorrect card!\n",
+					test.best.rank, test.best.cards, "\n",
+					actual.rank, actual.cards)
 				break
 			}
 		}
