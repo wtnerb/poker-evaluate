@@ -8,6 +8,7 @@ import (
 
 func main() {
 	fmt.Println("hello world!")
+	fmt.Println(card{2, 1}, card{2, 2}, card{2, 3}, card{2, 4})
 }
 
 // makes refering to the card type much easier

@@ -103,13 +103,7 @@ func (hand h) Len() int {
 func isStraight(hand []card) bool {
 	// checking for a straight is much easier without worrying about
 	// duplicate values in the middle of the sorted straight.
-	noDups := []card{hand[0]}
-	for _, c := range hand {
-		if c.Value != noDups[len(noDups)-1].Value {
-			noDups = append(noDups, c)
-		}
-	}
-
+	noDups := pruneDuplicateValues(hand)
 	// if there are not at least 5 distinct values, a straight is
 	// impossible
 	if len(noDups) < 5 {

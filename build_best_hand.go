@@ -1,65 +1,102 @@
 package main
 
-type best_hand struct {
+import (
+	"sort"
+)
+
+type bestHand struct {
 	cards [5]card
 	rank  handRank
 }
 
-func buildBestHand(cards []card) best_hand {
-	r := rankHand(cards)
+func buildBestHand(source []card) bestHand {
+	r := rankHand(source)
 	var best [5]card
-	numCards := 0
+
+	// rank hand already does this, but since the builds all
+	// depend upon getting things sorted by value it was considered
+	// wise to explicitly sort here
+	sort.Sort(h(source))
+	var numCards int
 	switch r {
 	case pair:
-		numCards += buildPair(cards, &best)
+		numCards = buildPair(source, &best)
 	case twoPair:
-		numCards += buildPair(cards, &best)
+		numCards = buildPair(source, &best)
 	case threeOfAKind:
-		numCards += buildThreeOfAKind(cards, &best)
+		numCards = buildThreeOfAKind(source, &best)
 	case fourOfAKind:
-		numCards += buildFourOfAKind(cards, &best)
+		numCards = buildFourOfAKind(source, &best)
+	case straight:
+		numCards = buildStraight(source, &best)
 	}
-	fillOutHand(cards, &best, numCards)
-	return best_hand{best, r}
+	fillOutHand(source, &best, numCards)
+	return bestHand{best, r}
 }
 
-func buildThreeOfAKind(cards []card, best *[5]card) int {
+func buildStraight(source []card, best *[5]card) int {
+	noDups := pruneDuplicateValues(source)
+	for i := range noDups {
+		if len(noDups)-i < 5 {
+			return 5
+		}
+		if noDups[i].Value == noDups[i+4].Value-4 {
+			_ = append(best[:0], source[i:i+5]...)
+		}
+	}
+	return 5
+}
+
+func pruneDuplicateValues(source []card) (noPairs []card) {
+	vals := make(map[int8]bool)
+	for _, c := range source {
+		if _, ok := vals[int8(c.Value)]; ok {
+			continue
+		}
+
+		vals[int8(c.Value)] = true
+		noPairs = append(noPairs, c)
+	}
+	return
+}
+
+func buildThreeOfAKind(source []card, best *[5]card) int {
 	b := best[:0]
-	for i := len(cards) - 1; i > 1 && len(b) < 3; i-- {
-		if cards[i].Value == cards[i-1].Value && cards[i].Value == cards[i-2].Value {
-			b = append(b, cards[i-2:i+1]...)
+	for i := len(source) - 1; i > 1 && len(b) < 3; i-- {
+		if source[i].Value == source[i-1].Value && source[i].Value == source[i-2].Value {
+			b = append(b, source[i-2:i+1]...)
 		}
 	}
 	return len(b)
 }
 
-func buildFourOfAKind(cards []card, best *[5]card) int {
+func buildFourOfAKind(source []card, best *[5]card) int {
 	b := best[:0]
-	for i := len(cards) - 1; i > 2 && len(b) < 3; i-- {
-		if cards[i].Value == cards[i-1].Value && cards[i].Value == cards[i-2].Value && cards[i].Value == cards[i-3].Value {
-			b = append(b, cards[i-3:i+1]...)
+	for i := len(source) - 1; i > 2 && len(b) < 3; i-- {
+		if source[i].Value == source[i-1].Value && source[i].Value == source[i-2].Value && source[i].Value == source[i-3].Value {
+			b = append(b, source[i-3:i+1]...)
 		}
 	}
 	return len(b)
 }
 
-func buildPair(cards []card, best *[5]card) int {
+func buildPair(source []card, best *[5]card) int {
 	b := best[:0]
-	for i := len(cards) - 1; i > 0 && len(b) < 4; i-- {
-		if cards[i].Value == cards[i-1].Value {
-			b = append(b, cards[i-1:i+1]...)
+	for i := len(source) - 1; i > 0 && len(b) < 4; i-- {
+		if source[i].Value == source[i-1].Value {
+			b = append(b, source[i-1:i+1]...)
 		}
 	}
 	return len(b)
 }
 
-// TODO: use map to keep in linear time, stay away from 7*5 time complexity
-// Is this actually a significant slowdown? perhaps should profile
-func fillOutHand(cards []card, best *[5]card, place int) {
+// TODO: use map to keep in linear time, stay away from 7*5 time complexity.
+// RESP: Is this actually a significant slowdown? profile before refactor
+func fillOutHand(source []card, best *[5]card, place int) {
 	b := best[:place]
-	for i := len(cards) - 1; i > 0 && len(b) < 5; i-- {
-		if !containsCard(b, cards[i]) {
-			b = append(b, cards[i])
+	for i := len(source) - 1; i > 0 && len(b) < 5; i-- {
+		if !containsCard(b, source[i]) {
+			b = append(b, source[i])
 		}
 	}
 }
