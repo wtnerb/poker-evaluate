@@ -31,6 +31,8 @@ func buildBestHand(source []card) bestHand {
 		numCards = buildStraight(source, &best)
 	case flush:
 		numCards = buildFlush(source, &best)
+	case straightFlush:
+		numCards = buildStraightFlush(source, &best)
 	}
 	fillOutHand(source, &best, numCards)
 	return bestHand{best, r}
@@ -50,15 +52,19 @@ func buildStraight(source []card, best *[5]card) int {
 	return 0
 }
 
-func buildFlush(source []card, best *[5]card) int {
-	var suits [5][]card
-	for _, c := range source {
-		suits[c.Suit] = append(suits[c.Suit], c)
-	}
+func buildStraightFlush(source []card, best *[5]card) int {
+	suits := bySuit(source)
 
-	if len(suits[0]) != 0 {
-		panic("card with invalid suit has been made available.")
+	for _, suit := range suits {
+		if len(suit) >= 5 {
+			return buildStraight(suit, best)
+		}
 	}
+	panic("Building a straight flush when there is not a flush")
+}
+
+func buildFlush(source []card, best *[5]card) int {
+	suits := bySuit(source)
 
 	for _, suit := range suits {
 		if len(suit) >= 5 {

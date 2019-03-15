@@ -138,15 +138,10 @@ func isStraight(hand []card) bool {
 }
 
 func isFlush(hand []card) bool {
-	// count up the number of cards of each suit
-	var count [5]int
-	for _, c := range hand {
-		count[c.Suit]++
-	}
-
+	suits := bySuit(hand)
 	// check counts of suit
-	for _, c := range count {
-		if c >= 5 {
+	for _, suit := range suits {
+		if len(suit) >= 5 {
 			return true
 		}
 	}
@@ -156,14 +151,22 @@ func isFlush(hand []card) bool {
 }
 
 func isStraightFlush(hand []card) bool {
-	var suited [5][]card
-	for _, c := range hand {
-		suited[c.Suit] = append(suited[c.Suit], c)
-	}
-	for _, suit := range suited {
+	suits := bySuit(hand)
+
+	for _, suit := range suits {
 		if len(suit) >= 5 && isStraight(suit) {
 			return true
 		}
 	}
 	return false
+}
+
+func bySuit(source []card) (suits [5][]card) {
+	for _, c := range source {
+		suits[c.Suit] = append(suits[c.Suit], c)
+	}
+	if len(suits[0]) != 0 {
+		panic("card with invalid suit has been found.")
+	}
+	return
 }
