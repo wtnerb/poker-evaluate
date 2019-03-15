@@ -354,32 +354,52 @@ func TestBestHand(t *testing.T) {
 				flush,
 			},
 		},
-		// {
-		// 	[]card{
-		// 		card{TWO, CLUB},
-		// 		card{THREE, CLUB},
-		// 		card{FOUR, DIAMOND},
-		// 		card{JACK, CLUB},
-		// 		card{SEVEN, CLUB},
-		// 		card{FIVE, CLUB},
-		// 		card{SIX, CLUB},
-		// 	}, bestHand{
-		// 		[5]card{
-		// 			card{FIVE, CLUB},
-		// 			card{THREE, CLUB},
-		// 			card{JACK, CLUB},
-		// 			card{SEVEN, CLUB},
-		// 			card{SIX, CLUB},
-		// 		},
-		// 		flush,
-		// 	},
-		// },
+		{
+			[]card{
+				card{TWO, CLUB},
+				card{THREE, CLUB},
+				card{FOUR, DIAMOND},
+				card{JACK, CLUB},
+				card{SEVEN, CLUB},
+				card{FIVE, CLUB},
+				card{SIX, CLUB},
+			}, bestHand{
+				[5]card{
+					card{FIVE, CLUB},
+					card{THREE, CLUB},
+					card{JACK, CLUB},
+					card{SEVEN, CLUB},
+					card{SIX, CLUB},
+				},
+				flush,
+			},
+		},
+		{
+			[]card{
+				card{EIGHT, SPADE},
+				card{THREE, CLUB},
+				card{SEVEN, CLUB},
+				card{JACK, DIAMOND},
+				card{FOUR, CLUB},
+				card{FIVE, CLUB},
+				card{SIX, CLUB},
+			}, bestHand{
+				[5]card{
+					card{FIVE, CLUB},
+					card{THREE, CLUB},
+					card{FOUR, CLUB},
+					card{SEVEN, CLUB},
+					card{SIX, CLUB},
+				},
+				straightFlush,
+			},
+		},
 	}
 	for _, test := range tests {
 		actual := buildBestHand(test.hand)
 		for _, c := range actual.cards {
 			if !containsCard(test.best.cards[:], c) {
-				t.Error("there is at least one missing card!", test.best.cards, actual.cards)
+				t.Error("there is at least one missing/incorrect card!", test.best.cards, actual.cards)
 				break
 			}
 		}

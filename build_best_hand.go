@@ -29,11 +29,14 @@ func buildBestHand(source []card) bestHand {
 		numCards = buildFourOfAKind(source, &best)
 	case straight:
 		numCards = buildStraight(source, &best)
+	case flush:
+		numCards = buildFlush(source, &best)
 	}
 	fillOutHand(source, &best, numCards)
 	return bestHand{best, r}
 }
 
+// TODO: this is not robust to being incorrectly called.
 func buildStraight(source []card, best *[5]card) int {
 	noDups := pruneDuplicateValues(source)
 	for i := range noDups {
@@ -44,7 +47,27 @@ func buildStraight(source []card, best *[5]card) int {
 			_ = append(best[:0], source[i:i+5]...)
 		}
 	}
-	return 5
+	return 0
+}
+
+func buildFlush(source []card, best *[5]card) int {
+	var suits [5][]card
+	for _, c := range source {
+		suits[c.Suit] = append(suits[c.Suit], c)
+	}
+
+	if len(suits[0]) != 0 {
+		panic("card with invalid suit has been made available.")
+	}
+
+	for _, suit := range suits {
+		if len(suit) >= 5 {
+			l := len(suit)
+			_ = append(best[:0], suit[l-5:l]...)
+			return 5
+		}
+	}
+	panic("Building a flush when there is not a flush")
 }
 
 func pruneDuplicateValues(source []card) (noPairs []card) {
