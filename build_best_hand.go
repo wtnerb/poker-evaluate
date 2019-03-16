@@ -33,9 +33,24 @@ func buildBestHand(source []card) bestHand {
 		numCards = buildFlush(source, &best)
 	case straightFlush:
 		numCards = buildStraightFlush(source, &best)
+	case fullHouse:
+		numCards = buildFullHouse(source, &best)
 	}
 	fillOutHand(source, &best, numCards)
 	return bestHand{best, r}
+}
+
+func buildFullHouse(source []card, best *[5]card) int {
+	_ = buildThreeOfAKind(source, best)
+	r := best[:3]
+	for i := len(source) - 1; i > 0; i-- {
+		a, b := source[i], source[i-1]
+		if a.Value == b.Value && !(containsCard(r, a) && !containsCard(r, b)) {
+			_ = append(r, source[i-1:i+1]...)
+			return 5
+		}
+	}
+	return 0
 }
 
 // TODO: this is not robust to being incorrectly called.

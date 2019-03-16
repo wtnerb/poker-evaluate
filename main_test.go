@@ -306,7 +306,7 @@ func TestBestHand(t *testing.T) {
 			}, bestHand{
 				[5]card{
 					card{THREE, DIAMOND},
-					card{JACK, CLUB},
+					card{TWO, CLUB},
 					card{THREE, SPADE},
 					card{TWO, HEART},
 					card{TWO, SPADE},
