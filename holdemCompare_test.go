@@ -99,7 +99,7 @@ func TestSevenCardCompare(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := sevenCardCompare(test.left, test.right)
+		result, _ := sevenCardCompare(test.left, test.right)
 
 		if result != test.winner {
 			t.Error("compare failed! recieved index", result, "\nfrom input", test)

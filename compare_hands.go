@@ -10,14 +10,14 @@ const (
 	TIE
 )
 
-func sevenCardCompare(left, right []card) int {
+func sevenCardCompare(left, right []card) (int, bestHand) {
 	l := buildBestHand(left)
 	r := buildBestHand(right)
 	if l.rank > r.rank {
-		return LEFT
+		return LEFT, l
 	}
 	if r.rank > l.rank {
-		return RIGHT
+		return RIGHT, r
 	}
-	return TIE
+	return TIE, l
 }

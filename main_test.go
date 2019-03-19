@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"poker/models"
+	"strings"
 	"testing"
 )
 
@@ -28,69 +33,90 @@ const (
 	TWO
 )
 
-func TestSingleWinner(t *testing.T) {
-	// At the moment, this is a dummy test. Started working, realized
-	// this was too big to be a single unit
-	// tests := []struct{
-	// 	table models.Table,
-	// 	expected models.TablePlayer
-	// }{
-	// 	{
-	// 		{
-	// 			{
-	// 				Name
-	// 			}
-	// 		}
-	// 	}
-	// }
+func TestServer(t *testing.T) {
+	expected := []byte(`["Brent"]`)
 
-	table1 := models.Table{
+	JSON, err := json.Marshal(models.Table{
 		Players: []models.TablePlayer{
 			{
-				Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: true,
+				Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: false,
 			},
-			{
+			models.TablePlayer{
 				Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
 			},
 		},
 		FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
+	})
+
+	if err != nil {
+		t.Error("failed while marshelling the json")
 	}
 
-	winner, _ := evaluateSingleWinner(table1)
-	if winner.Name != "Devin" {
-		t.Error("Everyone except Devin folded, how did he not win?")
+	req, err := http.NewRequest("POST", "http://localhost:4002/", strings.NewReader(string(JSON)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res := httptest.NewRecorder()
+
+	recieveTable(res, req)
+
+	if res.Code != http.StatusOK {
+		t.Error("response code was not desired", res.Code)
+	}
+
+	if bytes.Compare(expected, res.Body.Bytes()) != 0 {
+		t.Error("reponse was wrong. Expected\n", string(expected), "\ngot", string(res.Body.Bytes()))
 	}
 }
 
-func TestEvaluateHands(t *testing.T) {
+func TestWinner(t *testing.T) {
+	// At the moment, this is a dummy test. Started working, realized
+	// this was too big to be a single unit
 	tests := []struct {
-		hands    [][2]card
-		table    []card
-		expected []handRank
+		table    models.Table
+		expected models.TablePlayer
 	}{
 		{
-			[][2]card{
-				[2]card{card{TWO, CLUB}, card{TWO, HEART}},
-				[2]card{card{THREE, SPADE}, card{FOUR, HEART}},
-				[2]card{card{FOUR, SPADE}, card{models.ACE, HEART}},
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: true,
+					},
+					models.TablePlayer{
+						Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
+					},
+				},
+				FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
 			},
-			[]card{
-				card{FIVE, SPADE},
-				card{JACK, HEART},
-				card{SIX, CLUB},
-				card{SEVEN, DIAMOND},
-				card{NINE, DIAMOND}},
-			[]handRank{pair, straight, highcard},
+			models.TablePlayer{
+				Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
+			},
+		},
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: false,
+					},
+					models.TablePlayer{
+						Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
+					},
+				},
+				FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
+			},
+			models.TablePlayer{
+				Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: false,
+			},
 		},
 	}
-
 	for _, test := range tests {
-		ranks := rankHands(test.table, test.hands)
-		for i := range test.expected {
-			if ranks[i] != test.expected[i] {
-				t.Errorf("A hand was not ranked correctly! hand number %d, expected %v, got %v\ntable: %v\nhands: %v", i, test.expected[i], ranks[i], test.table, test.hands)
-			}
-
+		actual, err := evaluateWinner(test.table)
+		if err != nil {
+			t.Error(err)
+		}
+		if actual.Name != test.expected.Name {
+			t.Error("wrong person won. Expected", test.expected.Name, "got", actual.Name, "\n", test.table)
 		}
 	}
 }

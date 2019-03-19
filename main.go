@@ -1,20 +1,38 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"poker/models"
 )
 
 func main() {
 	fmt.Println("hello world!")
-	fmt.Println(card{2, 1}, card{2, 2}, card{2, 3}, card{2, 4})
+}
+
+func recieveTable(w http.ResponseWriter, r *http.Request) {
+
+	table := models.Table{}
+	err := json.NewDecoder(r.Body).Decode(&table)
+	if err != nil {
+		fmt.Println("there was an error reading the json")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	winner, _ := evaluateWinner(table)
+
+	w.Write([]byte(`["` + winner.Name + `"]`))
+
+	w.WriteHeader(http.StatusOK)
 }
 
 // makes refering to the card type much easier
 type card = models.Card
 
-func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
+func evaluateWinner(table models.Table) (models.TablePlayer, error) {
 	// if table.Players[0] == nil {
 	// 	panic("there are no players at the table!")
 	// }
@@ -32,14 +50,12 @@ func evaluateSingleWinner(table models.Table) (models.TablePlayer, error) {
 	if len(activePlayers) == 1 {
 		return activePlayers[0], nil
 	}
-	return models.TablePlayer{}, errors.New("the winner could not be determined")
-}
 
-// looks at hands from texas hold'em and returns the ranks of each hand
-func rankHands(faceUp []card, holeCards [][2]card) []handRank {
-	ranks := make([]handRank, len(holeCards))
-	for i := range holeCards {
-		ranks[i] = rankHand(append(faceUp, holeCards[i][0], holeCards[i][1]))
+	best := activePlayers[0]
+	for _, player := range activePlayers {
+		if win, _ := sevenCardCompare(append(table.FaceUp, best.Cards...), append(table.FaceUp, best.Cards...)); win == 1 {
+			best = player
+		}
 	}
-	return ranks
+	return best, nil
 }
