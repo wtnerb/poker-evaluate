@@ -8,29 +8,33 @@ import (
 	"poker/models"
 )
 
+const port = ":4002"
+
 func main() {
 	fmt.Println("hello world!")
+	http.HandleFunc("/", recieveTable)
+
+	http.ListenAndServe(port, nil)
 }
 
 func recieveTable(w http.ResponseWriter, r *http.Request) {
-
 	table := models.Table{}
 	err := json.NewDecoder(r.Body).Decode(&table)
 	if err != nil {
-		fmt.Println("there was an error reading the json")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("json is malformed"))
 		return
 	}
 
 	winner, err := evaluateWinner(table)
 	if err != nil {
-		w.Write([]byte("invalid game state" + err.Error()))
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("invalid game state " + err.Error()))
+		return
 	}
 
-	w.Write([]byte(`["` + winner.Name + `"]`))
-
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`["` + winner.Name + `"]`))
 }
 
 // makes refering to the card type much easier
@@ -40,7 +44,6 @@ func evaluateWinner(table models.Table) (models.TablePlayer, error) {
 	// if table.Players[0] == nil {
 	// 	panic("there are no players at the table!")
 	// }
-
 	var activePlayers []models.TablePlayer
 
 	for _, player := range table.Players {

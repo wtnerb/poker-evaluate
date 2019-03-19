@@ -34,39 +34,69 @@ const (
 )
 
 func TestServer(t *testing.T) {
-	expected := []byte(`["Brent"]`)
-
-	JSON, err := json.Marshal(models.Table{
-		Players: []models.TablePlayer{
-			{
-				Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: false,
+	tests := []struct {
+		table    models.Table
+		expected []byte
+		status   int
+	}{
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: false,
+					},
+					models.TablePlayer{
+						Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
+					},
+				},
+				FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
 			},
-			models.TablePlayer{
-				Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: false,
-			},
+			[]byte(`["Brent"]`),
+			http.StatusOK,
 		},
-		FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
-	})
-
-	if err != nil {
-		t.Error("failed while marshelling the json")
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						Name: "Brent", Cards: []card{card{TWO, HEART}, card{TWO, CLUB}}, Folded: true,
+					},
+					models.TablePlayer{
+						Name: "Devin", Cards: []card{card{THREE, SPADE}, card{FOUR, HEART}}, Folded: true,
+					},
+				},
+				FaceUp: []card{card{FIVE, SPADE}, card{JACK, HEART}, card{KING, CLUB}, card{SEVEN, DIAMOND}, card{NINE, DIAMOND}},
+			},
+			[]byte(`invalid game state there are no active players`),
+			http.StatusBadRequest,
+		},
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:4002/", strings.NewReader(string(JSON)))
-	if err != nil {
-		t.Fatal(err)
-	}
+	for _, test := range tests {
 
-	res := httptest.NewRecorder()
+		JSON, err := json.Marshal(test.table)
 
-	recieveTable(res, req)
+		if err != nil {
+			t.Error("failed while marshelling the json")
+		}
 
-	if res.Code != http.StatusOK {
-		t.Error("response code was not desired", res.Code)
-	}
+		req, err := http.NewRequest("POST", "http://localhost"+port+"/", strings.NewReader(string(JSON)))
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if bytes.Compare(expected, res.Body.Bytes()) != 0 {
-		t.Error("reponse was wrong. Expected\n", string(expected), "\ngot", string(res.Body.Bytes()))
+		res := httptest.NewRecorder()
+
+		recieveTable(res, req)
+
+		if res.Code != test.status {
+			t.Log(req)
+			t.Log(res)
+			t.Error("response code was not desired. Expected", test.status, "recieved", res.Code)
+		}
+
+		if bytes.Compare(test.expected, res.Body.Bytes()) != 0 {
+			t.Error("reponse was wrong. Expected\n", string(test.expected), "\ngot", string(res.Body.Bytes()))
+		}
 	}
 }
 
