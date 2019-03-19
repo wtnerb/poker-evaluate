@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 // func TestHoldemCompare(t *testing.T) {
 // 	test := struct {
@@ -12,15 +14,15 @@ import "testing"
 // 		}
 // 	}{
 // 		[]card{
-// 			card{ACE, SPADE},
-// 			card{KING, DIAMOND},
-// 			card{TWO, HEART},
-// 			card{SEVEN, HEART},
-// 			card{TEN, CLUB},
+// 			newCard(ACE, SPADE),
+// 			newCard(KING, DIAMOND),
+// 			newCard(TWO, HEART),
+// 			newCard(SEVEN, HEART),
+// 			newCard(TEN, CLUB),
 // 		},
 // 		[][]card{
-// 			[]card{card{FOUR, SPADE}, card{QUEEN, CLUB}},
-// 			[]card{card{THREE, SPADE}, card{KING, SPADE}},
+// 			[]card{newCard(FOUR, SPADE}, newCard(QUEEN, CLUB}),
+// 			[]card{newCard(THREE, SPADE}, newCard(KING, SPADE}),
 // 		},
 // 		struct {
 // 			winner int
@@ -28,12 +30,12 @@ import "testing"
 // 		}{
 // 			1,
 // 			bestHand{
-// 				[5]card{
-// 					card{ACE, SPADE},
-// 					card{KING, DIAMOND},
-// 					card{KING, SPADE},
-// 					card{TEN, CLUB},
-// 					card{SEVEN, HEART},
+// 				[5]models.NewCar)(
+// 					newCard(ACE, SPADE),
+// 					newCard(KING, DIAMOND),
+// 					newCard(KING, SPADE),
+// 					newCard(TEN, CLUB),
+// 					newCard(SEVEN, HEART),
 // 				},
 // 				pair,
 // 			},
@@ -56,43 +58,43 @@ func TestSevenCardCompare(t *testing.T) {
 	}{
 		{
 			[]card{
-				card{ACE, SPADE},
-				card{KING, DIAMOND},
-				card{TWO, HEART},
-				card{SEVEN, HEART},
-				card{TEN, CLUB},
-				card{FOUR, SPADE},
-				card{QUEEN, CLUB},
+				newCard(ACE, SPADE),
+				newCard(KING, DIAMOND),
+				newCard(TWO, HEART),
+				newCard(SEVEN, HEART),
+				newCard(TEN, CLUB),
+				newCard(FOUR, SPADE),
+				newCard(QUEEN, CLUB),
 			},
 			[]card{
-				card{ACE, SPADE},
-				card{KING, DIAMOND},
-				card{TWO, HEART},
-				card{SEVEN, HEART},
-				card{TEN, CLUB},
-				card{EIGHT, DIAMOND},
-				card{KING, CLUB},
+				newCard(ACE, SPADE),
+				newCard(KING, DIAMOND),
+				newCard(TWO, HEART),
+				newCard(SEVEN, HEART),
+				newCard(TEN, CLUB),
+				newCard(EIGHT, DIAMOND),
+				newCard(KING, CLUB),
 			},
 			RIGHT,
 		},
 		{
 			[]card{
-				card{ACE, SPADE},
-				card{SEVEN, DIAMOND},
-				card{TWO, HEART},
-				card{SEVEN, HEART},
-				card{TEN, CLUB},
-				card{FOUR, SPADE},
-				card{ACE, CLUB},
+				newCard(ACE, SPADE),
+				newCard(SEVEN, DIAMOND),
+				newCard(TWO, HEART),
+				newCard(SEVEN, HEART),
+				newCard(TEN, CLUB),
+				newCard(FOUR, SPADE),
+				newCard(ACE, CLUB),
 			},
 			[]card{
-				card{ACE, SPADE},
-				card{KING, DIAMOND},
-				card{TWO, HEART},
-				card{SEVEN, HEART},
-				card{TEN, CLUB},
-				card{EIGHT, DIAMOND},
-				card{KING, CLUB},
+				newCard(ACE, SPADE),
+				newCard(KING, DIAMOND),
+				newCard(TWO, HEART),
+				newCard(SEVEN, HEART),
+				newCard(TEN, CLUB),
+				newCard(EIGHT, DIAMOND),
+				newCard(KING, CLUB),
 			},
 			LEFT,
 		},
