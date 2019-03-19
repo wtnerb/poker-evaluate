@@ -22,7 +22,11 @@ func recieveTable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	winner, _ := evaluateWinner(table)
+	winner, err := evaluateWinner(table)
+	if err != nil {
+		w.Write([]byte("invalid game state" + err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
+	}
 
 	w.Write([]byte(`["` + winner.Name + `"]`))
 
