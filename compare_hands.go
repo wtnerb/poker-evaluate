@@ -5,19 +5,19 @@ func holdemCompare(tableCards []card, holes [][]card) (int, bestHand) {
 }
 
 const (
-	LEFT = iota
-	RIGHT
-	TIE
+	leftWins = iota
+	rightWins
+	tie
 )
 
 func sevenCardCompare(left, right []card) (int, bestHand) {
 	l := buildBestHand(left)
 	r := buildBestHand(right)
 	if l.rank > r.rank {
-		return LEFT, l
+		return leftWins, l
 	}
 	if r.rank > l.rank {
-		return RIGHT, r
+		return rightWins, r
 	}
-	return TIE, l
+	return tie, l
 }

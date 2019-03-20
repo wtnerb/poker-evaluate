@@ -30,7 +30,7 @@ import (
 // 		}{
 // 			1,
 // 			bestHand{
-// 				[5]models.NewCar)(
+// 				[5]card(
 // 					newCard(ACE, SPADE),
 // 					newCard(KING, DIAMOND),
 // 					newCard(KING, SPADE),
@@ -75,7 +75,7 @@ func TestSevenCardCompare(t *testing.T) {
 				newCard(EIGHT, DIAMOND),
 				newCard(KING, CLUB),
 			},
-			RIGHT,
+			rightWins,
 		},
 		{
 			[]card{
@@ -96,7 +96,7 @@ func TestSevenCardCompare(t *testing.T) {
 				newCard(EIGHT, DIAMOND),
 				newCard(KING, CLUB),
 			},
-			LEFT,
+			leftWins,
 		},
 	}
 

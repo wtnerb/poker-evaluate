@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"poker/models"
+
+	models "github.com/wtnerb/poker-models"
 )
 
 const port = ":4002"

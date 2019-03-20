@@ -1,8 +1,9 @@
 package main
 
 import (
-	"poker/models"
 	"sort"
+
+	models "github.com/wtnerb/poker-models"
 )
 
 type handRank int

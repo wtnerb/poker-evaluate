@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"poker/models"
 	"strings"
 	"testing"
+
+	models "github.com/wtnerb/poker-models"
 )
 
 const (
@@ -34,8 +35,17 @@ const (
 )
 
 func newCard(v, s int8) card {
-	return models.NewCard(v, s)
+	return card(models.NewCard(v, s))
 }
+
+func makeCards(vals [][2]int8) (cs []card) {
+	for _, c := range vals {
+		cs = append(cs, newCard(c[0], c[1]))
+	}
+	return
+}
+
+type cards [][2]int8
 
 func TestServer(t *testing.T) {
 	tests := []struct {
@@ -47,8 +57,11 @@ func TestServer(t *testing.T) {
 			models.Table{
 				Players: []models.TablePlayer{
 					{
-						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
 					},
+					// {
+					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+					// },
 					models.TablePlayer{
 						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
 					},
