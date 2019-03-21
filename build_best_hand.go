@@ -166,11 +166,3 @@ func containsCard(cards []card, target card) bool {
 	}
 	return false
 }
-
-// approaches for ranking hands:
-// - use pairs approach, which I currently am using
-// - build an "occurences [13][]card"
-//
-// Reasons for chosing each: pairs approach is already half done
-//
-// occurence approach uses easier logic.
