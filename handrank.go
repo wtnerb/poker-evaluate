@@ -109,23 +109,13 @@ func isStraight(hand []card) bool {
 	// checking for a straight is much easier without worrying about
 	// duplicate values in the middle of the sorted straight.
 	noDups := pruneDuplicateValues(hand)
-	// if there are not at least 5 distinct values, a straight is
-	// impossible
-	if len(noDups) < 5 {
-		return false
-	}
 
-	// double for loop is inefficient, but hand size should be <= 7, so
-	// efficiency at the asymtote is not relevant.
+	// if the slice without duplicate values every has a value 4 slots
+	// ahead with a value +4 than the current, there must be 3 intermediate
+	// values x+1, x+2, and x+3. Combined with x and x+4, that makes a
+	// five card straight
 	for i := 0; i < len(noDups)-4; i++ {
-		maybe := true
-		for j := 1; j < 5; j++ {
-			if int(noDups[i+j].Value) != int(noDups[i].Value)-j {
-				maybe = false
-				break
-			}
-		}
-		if maybe {
+		if noDups[i].Value == noDups[i+4].Value+4 {
 			return true
 		}
 	}
@@ -137,6 +127,7 @@ func isStraight(hand []card) bool {
 	return false
 }
 
+// isFlush checks if a slice of cards has five or more cards of a single suit.
 func isFlush(hand []card) bool {
 	suits := bySuit(hand)
 	// check counts of suit
@@ -150,6 +141,7 @@ func isFlush(hand []card) bool {
 	return false
 }
 
+// isStraightFlush checks if a slice of cards contains a straight flush
 func isStraightFlush(hand []card) bool {
 	suits := bySuit(hand)
 
@@ -161,12 +153,11 @@ func isStraightFlush(hand []card) bool {
 	return false
 }
 
-func bySuit(source []card) (suits [5][]card) {
+// bySuit will take a source slice of cards and return four slices of
+// cards organized by suit. No promise about order of suits.
+func bySuit(source []card) (suits [4][]card) {
 	for _, c := range source {
-		suits[c.Suit] = append(suits[c.Suit], c)
-	}
-	if len(suits[0]) != 0 {
-		panic("card with invalid suit has been found.")
+		suits[c.Suit-1] = append(suits[c.Suit-1], c)
 	}
 	return
 }
