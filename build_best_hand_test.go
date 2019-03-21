@@ -1,3 +1,7 @@
+package main
+
+import "testing"
+
 func TestBestHand(t *testing.T) {
 	tests := []struct {
 		hand []card
@@ -236,4 +240,3 @@ func TestBestHand(t *testing.T) {
 		}
 	}
 }
-

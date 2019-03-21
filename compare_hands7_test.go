@@ -9,6 +9,7 @@ func TestSevenCardCompare(t *testing.T) {
 		left   []card
 		right  []card
 		winner int
+		desc   string
 	}{
 		{
 			[]card{
@@ -30,6 +31,7 @@ func TestSevenCardCompare(t *testing.T) {
 				newCard(KING, CLUB),
 			},
 			rightWins,
+			"pair beats highcard",
 		},
 		{
 			[]card{
@@ -51,6 +53,7 @@ func TestSevenCardCompare(t *testing.T) {
 				newCard(KING, CLUB),
 			},
 			leftWins,
+			"two pair beats pair",
 		},
 	}
 
@@ -58,7 +61,7 @@ func TestSevenCardCompare(t *testing.T) {
 		result, _ := sevenCardCompare(test.left, test.right)
 
 		if result != test.winner {
-			t.Error("compare failed! recieved index", result, "\nfrom input", test)
+			t.Error(test.desc, "compare failed! recieved index", result, "\nfrom input", test)
 		}
 	}
 }
