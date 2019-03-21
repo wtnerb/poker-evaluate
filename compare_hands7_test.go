@@ -81,41 +81,58 @@ func TestSevenCardCompare(t *testing.T) {
 
 func TestCompareBest(t *testing.T) {
 	tests := []struct {
-		left   bestHand
-		right  bestHand
+		left   [5]card
+		right  [5]card
+		rank   handRank
 		winner verdict
 		desc   string
 	}{
 		{
-			bestHand{
-				[5]card{
-					newCard(KING, SPADE),
-					newCard(JACK, SPADE),
-					newCard(TEN, CLUB),
-					newCard(TWO, DIAMOND),
-					newCard(FOUR, HEART),
-				},
-				highcard,
+			[5]card{
+				newCard(KING, SPADE),
+				newCard(JACK, HEART),
+				newCard(TEN, SPADE),
+				newCard(TWO, SPADE),
+				newCard(FOUR, CLUB),
 			},
-			bestHand{
-				[5]card{
-					newCard(JACK, SPADE),
-					newCard(TEN, CLUB),
-					newCard(EIGHT, SPADE),
-					newCard(TWO, DIAMOND),
-					newCard(FOUR, HEART),
-				},
-				highcard,
+
+			[5]card{
+				newCard(JACK, SPADE),
+				newCard(TEN, CLUB),
+				newCard(EIGHT, SPADE),
+				newCard(TWO, DIAMOND),
+				newCard(FOUR, HEART),
 			},
+			highcard,
 			leftWins,
 			"King is larger highcard than jack",
+		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
+				newCard(JACK, SPADE),
+				newCard(TEN, CLUB),
+				newCard(TWO, DIAMOND),
+				newCard(FOUR, HEART),
+			},
+
+			[5]card{
+				newCard(JACK, HEART),
+				newCard(TEN, DIAMOND),
+				newCard(EIGHT, SPADE),
+				newCard(KING, DIAMOND),
+				newCard(FOUR, CLUB),
+			},
+			highcard,
+			rightWins,
+			"Eight is larger than four",
 		},
 	}
 
 	for _, test := range tests {
-		result := compareBest(test.left, test.right)
+		result := compareBest(test.left, test.right, test.rank)
 		if result != test.winner {
-			t.Error(test.desc, "\nwrong person won. got:", result, "expected:", test.winner, "\n", test.left.cards, "\n", test.right.cards)
+			t.Error(test.desc, "\nwrong person won. got:", result, "expected:", test.winner, "\n", test.left, "\n", test.right)
 		}
 	}
 }
