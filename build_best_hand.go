@@ -15,9 +15,8 @@ func buildBestHand(source []card) bestHand {
 	r := rankHand(source)
 	var best [5]card
 
-	// rank hand already does this, but since the builds all
-	// depend upon getting things sorted by value it was considered
-	// wise to explicitly sort here
+	// rank hand already sorts, but since working on a sorted list
+	// is a dependency explicitly sorting was considered wise.
 	sort.Sort(h(source))
 	var numCards int
 	switch r {

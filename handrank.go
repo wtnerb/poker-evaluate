@@ -104,7 +104,6 @@ func (hand h) Len() int {
 	return len(hand)
 }
 
-// TODO: Too much logic here. Should be broken up.
 func isStraight(hand []card) bool {
 	// checking for a straight is much easier without worrying about
 	// duplicate values in the middle of the sorted straight.
