@@ -10,23 +10,23 @@ const (
 
 type verdict int
 
-func sevenCardCompare(left, right []card) (verdict, bestHand) {
+func sevenCardCompare(left, right []card) verdict {
 	l := buildBestHand(left)
 	r := buildBestHand(right)
 	if l.rank > r.rank {
-		return leftWins, l
+		return leftWins
 	}
 	if r.rank > l.rank {
-		return rightWins, r
+		return rightWins
 	}
-	return compareBest(l.cards, r.cards, l.rank), l
+	return compareBest(l.cards, r.cards, l.rank)
 }
 
 func compareBest(l, r [5]card, rank handRank) verdict {
 	sort.Sort(h(l[:]))
 	sort.Sort(h(r[:]))
 	switch rank {
-	case highcard:
+	case highcard, straight, straightFlush, flush:
 		return highest(l[:], r[:])
 	}
 	return tie

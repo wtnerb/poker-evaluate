@@ -63,7 +63,7 @@ func evaluateWinner(table models.Table) (models.TablePlayer, error) {
 
 	best := activePlayers[0]
 	for _, player := range activePlayers {
-		if win, _ := sevenCardCompare(append(table.FaceUp, best.Cards...), append(table.FaceUp, best.Cards...)); win == 1 {
+		if win := sevenCardCompare(append(table.FaceUp, best.Cards...), append(table.FaceUp, best.Cards...)); win == 1 {
 			best = player
 		}
 	}
