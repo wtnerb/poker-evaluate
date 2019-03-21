@@ -1,16 +1,14 @@
 package main
 
-func holdemCompare(tableCards []card, holes [][]card) (int, bestHand) {
-	return 0, bestHand{}
-}
-
 const (
-	leftWins = iota
+	leftWins verdict = iota
 	rightWins
 	tie
 )
 
-func sevenCardCompare(left, right []card) (int, bestHand) {
+type verdict int
+
+func sevenCardCompare(left, right []card) (verdict, bestHand) {
 	l := buildBestHand(left)
 	r := buildBestHand(right)
 	if l.rank > r.rank {
@@ -19,5 +17,10 @@ func sevenCardCompare(left, right []card) (int, bestHand) {
 	if r.rank > l.rank {
 		return rightWins, r
 	}
-	return tie, l
+	return compareBest(l, r), l
+}
+
+func compareBest(l, r bestHand) verdict {
+
+	return tie
 }

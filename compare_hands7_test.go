@@ -4,11 +4,24 @@ import (
 	"testing"
 )
 
+func (v verdict) String() string {
+	if v == leftWins {
+		return "left won"
+	}
+	if v == rightWins {
+		return "right won"
+	}
+	if v == tie {
+		return "tie"
+	}
+	return "invalid verdict"
+}
+
 func TestSevenCardCompare(t *testing.T) {
 	tests := []struct {
 		left   []card
 		right  []card
-		winner int
+		winner verdict
 		desc   string
 	}{
 		{
@@ -62,6 +75,47 @@ func TestSevenCardCompare(t *testing.T) {
 
 		if result != test.winner {
 			t.Error(test.desc, "compare failed! recieved index", result, "\nfrom input", test)
+		}
+	}
+}
+
+func TestCompareBest(t *testing.T) {
+	tests := []struct {
+		left   bestHand
+		right  bestHand
+		winner verdict
+		desc   string
+	}{
+		{
+			bestHand{
+				[5]card{
+					newCard(KING, SPADE),
+					newCard(JACK, SPADE),
+					newCard(TEN, CLUB),
+					newCard(TWO, DIAMOND),
+					newCard(FOUR, HEART),
+				},
+				highcard,
+			},
+			bestHand{
+				[5]card{
+					newCard(JACK, SPADE),
+					newCard(TEN, CLUB),
+					newCard(EIGHT, SPADE),
+					newCard(TWO, DIAMOND),
+					newCard(FOUR, HEART),
+				},
+				highcard,
+			},
+			leftWins,
+			"King is larger highcard than jack",
+		},
+	}
+
+	for _, test := range tests {
+		result := compareBest(test.left, test.right)
+		if result != test.winner {
+			t.Error(test.desc, "\nwrong person won. got:", result, "expected:", test.winner, "\n", test.left.cards, "\n", test.right.cards)
 		}
 	}
 }
