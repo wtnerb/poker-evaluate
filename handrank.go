@@ -89,7 +89,7 @@ func numPairs(hand []card) int {
 
 //these three methods are required to fulfil the sort.Interface interface
 func (hand h) Less(i, j int) bool {
-	return hand[i].Value < hand[j].Value
+	return hand[i].Value > hand[j].Value
 }
 
 func (hand h) Swap(i, j int) {
@@ -116,7 +116,7 @@ func isStraight(hand []card) bool {
 	for i := 0; i < len(noDups)-4; i++ {
 		maybe := true
 		for j := 1; j < 5; j++ {
-			if int(noDups[i+j].Value) != int(noDups[i].Value)+j {
+			if int(noDups[i+j].Value) != int(noDups[i].Value)-j {
 				maybe = false
 				break
 			}
@@ -127,12 +127,7 @@ func isStraight(hand []card) bool {
 	}
 
 	//special logic for ace switching to be a 'one' value
-	if noDups[len(noDups)-1].Value == models.ACE {
-		for i := 0; i < 4; i++ {
-			if int(noDups[i].Value) != 2+i {
-				return false
-			}
-		}
+	if noDups[0].Value == models.ACE && noDups[len(noDups)-4].Value == 5 {
 		return true
 	}
 	return false

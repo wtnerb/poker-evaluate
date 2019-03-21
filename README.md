@@ -13,7 +13,7 @@ Regardless, version 0.1 of this service is to recieve a post request with the ta
 [x] Can build best hand
 [] Can compare hands of same rank
 [] Can handle a tie
-[] Containerized
+[x] Containerized
 [] Deployed
 [] Security (does not hold information, but accessing with HTTPS secures information while in transit and verifying that a response came from this server will help as well)
 [] Keep test coverage over 90% while working
