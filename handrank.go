@@ -36,7 +36,12 @@ func (r handRank) String() string {
 	return ranks[r]
 }
 
+// TODO: This can probably be combined with buildBestHand to be more
+// efficient. This is easier to reason as a human. Is there enough
+// performance overhead to make a refactor worthwhile?
 func rankHand(hand []card) handRank {
+	// Working with a list sorted by value (high to low) is easier
+	sort.Sort(h(hand))
 	pairs := numPairs(hand)
 	fl := isFlush(hand)
 	if fl && isStraightFlush(hand) {
@@ -77,7 +82,6 @@ func rankHand(hand []card) handRank {
 // pair, three of a kind, full house and four of a kind for the maximum
 // scoring set of 5 cards selected from the 7.
 func numPairs(hand []card) int {
-	sort.Sort(h(hand))
 	pairs := 0
 	for i := range hand {
 		for j := i + 1; j < len(hand) && hand[j].Value == hand[i].Value; j++ {
@@ -89,7 +93,7 @@ func numPairs(hand []card) int {
 
 //these three methods are required to fulfil the sort.Interface interface
 func (hand h) Less(i, j int) bool {
-	return hand[i].Value < hand[j].Value
+	return hand[i].Value > hand[j].Value
 }
 
 func (hand h) Swap(i, j int) {
@@ -100,44 +104,29 @@ func (hand h) Len() int {
 	return len(hand)
 }
 
-// TODO: Too much logic here. Should be broken up.
 func isStraight(hand []card) bool {
 	// checking for a straight is much easier without worrying about
 	// duplicate values in the middle of the sorted straight.
 	noDups := pruneDuplicateValues(hand)
-	// if there are not at least 5 distinct values, a straight is
-	// impossible
-	if len(noDups) < 5 {
-		return false
-	}
 
-	// double for loop is inefficient, but hand size should be <= 7, so
-	// efficiency at the asymtote is not relevant.
+	// if the slice without duplicate values every has a value 4 slots
+	// ahead with a value +4 than the current, there must be 3 intermediate
+	// values x+1, x+2, and x+3. Combined with x and x+4, that makes a
+	// five card straight
 	for i := 0; i < len(noDups)-4; i++ {
-		maybe := true
-		for j := 1; j < 5; j++ {
-			if int(noDups[i+j].Value) != int(noDups[i].Value)+j {
-				maybe = false
-				break
-			}
-		}
-		if maybe {
+		if noDups[i].Value == noDups[i+4].Value+4 {
 			return true
 		}
 	}
 
 	//special logic for ace switching to be a 'one' value
-	if noDups[len(noDups)-1].Value == models.ACE {
-		for i := 0; i < 4; i++ {
-			if int(noDups[i].Value) != 2+i {
-				return false
-			}
-		}
+	if noDups[0].Value == models.ACE && noDups[len(noDups)-4].Value == 5 {
 		return true
 	}
 	return false
 }
 
+// isFlush checks if a slice of cards has five or more cards of a single suit.
 func isFlush(hand []card) bool {
 	suits := bySuit(hand)
 	// check counts of suit
@@ -151,6 +140,7 @@ func isFlush(hand []card) bool {
 	return false
 }
 
+// isStraightFlush checks if a slice of cards contains a straight flush
 func isStraightFlush(hand []card) bool {
 	suits := bySuit(hand)
 
@@ -162,12 +152,11 @@ func isStraightFlush(hand []card) bool {
 	return false
 }
 
-func bySuit(source []card) (suits [5][]card) {
+// bySuit will take a source slice of cards and return four slices of
+// cards organized by suit. No promise about order of suits.
+func bySuit(source []card) (suits [4][]card) {
 	for _, c := range source {
-		suits[c.Suit] = append(suits[c.Suit], c)
-	}
-	if len(suits[0]) != 0 {
-		panic("card with invalid suit has been found.")
+		suits[c.Suit-1] = append(suits[c.Suit-1], c)
 	}
 	return
 }

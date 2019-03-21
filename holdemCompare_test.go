@@ -4,52 +4,6 @@ import (
 	"testing"
 )
 
-// func TestHoldemCompare(t *testing.T) {
-// 	test := struct {
-// 		tableCards []card
-// 		holes      [][]card
-// 		expected   struct {
-// 			winner int
-// 			hand   bestHand
-// 		}
-// 	}{
-// 		[]card{
-// 			newCard(ACE, SPADE),
-// 			newCard(KING, DIAMOND),
-// 			newCard(TWO, HEART),
-// 			newCard(SEVEN, HEART),
-// 			newCard(TEN, CLUB),
-// 		},
-// 		[][]card{
-// 			[]card{newCard(FOUR, SPADE}, newCard(QUEEN, CLUB}),
-// 			[]card{newCard(THREE, SPADE}, newCard(KING, SPADE}),
-// 		},
-// 		struct {
-// 			winner int
-// 			hand   bestHand
-// 		}{
-// 			1,
-// 			bestHand{
-// 				[5]card(
-// 					newCard(ACE, SPADE),
-// 					newCard(KING, DIAMOND),
-// 					newCard(KING, SPADE),
-// 					newCard(TEN, CLUB),
-// 					newCard(SEVEN, HEART),
-// 				},
-// 				pair,
-// 			},
-// 		},
-// 	}
-// 	winner, best := holdemCompare(test.tableCards, test.holes)
-// 	if winner != test.expected.winner {
-// 		t.Error("the wrong person won")
-// 	}
-// 	if len(best.cards) != 5 || len(test.expected.hand.cards) != 5 {
-// 		t.Error("wrong number of cards")
-// 	}
-// }
-
 func TestSevenCardCompare(t *testing.T) {
 	tests := []struct {
 		left   []card

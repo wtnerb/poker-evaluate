@@ -2,6 +2,8 @@ package main
 
 import (
 	"sort"
+
+	models "github.com/wtnerb/poker-models"
 )
 
 type bestHand struct {
@@ -13,9 +15,8 @@ func buildBestHand(source []card) bestHand {
 	r := rankHand(source)
 	var best [5]card
 
-	// rank hand already does this, but since the builds all
-	// depend upon getting things sorted by value it was considered
-	// wise to explicitly sort here
+	// rank hand already sorts, but since working on a sorted list
+	// is a dependency explicitly sorting was considered wise.
 	sort.Sort(h(source))
 	var numCards int
 	switch r {
@@ -58,10 +59,16 @@ func buildStraight(source []card, best *[5]card) int {
 	noDups := pruneDuplicateValues(source)
 	for i := range noDups {
 		if len(noDups)-i < 5 {
-			return 5
+			if noDups[0].Value == models.ACE && noDups[len(noDups)-4].Value == 5 {
+				s := append(noDups[0:1], noDups[len(noDups)-4:]...)
+				_ = append(best[:0], s...)
+				return 5
+			}
+			panic("there isn't a straight")
 		}
-		if noDups[i].Value == noDups[i+4].Value-4 {
+		if noDups[i].Value == noDups[i+4].Value+4 {
 			_ = append(best[:0], source[i:i+5]...)
+			return 5
 		}
 	}
 	return 0
@@ -83,8 +90,7 @@ func buildFlush(source []card, best *[5]card) int {
 
 	for _, suit := range suits {
 		if len(suit) >= 5 {
-			l := len(suit)
-			_ = append(best[:0], suit[l-5:l]...)
+			_ = append(best[:0], suit[0:5]...)
 			return 5
 		}
 	}
@@ -126,9 +132,12 @@ func buildFourOfAKind(source []card, best *[5]card) int {
 
 func buildPair(source []card, best *[5]card) int {
 	b := best[:0]
-	for i := len(source) - 1; i > 0 && len(b) < 4; i-- {
-		if source[i].Value == source[i-1].Value {
-			b = append(b, source[i-1:i+1]...)
+	for i := range source {
+		if len(b) >= 4 || i == len(source)-1 {
+			break
+		}
+		if source[i].Value == source[i+1].Value {
+			b = append(b, source[i:i+2]...)
 		}
 	}
 	return len(b)
@@ -138,9 +147,12 @@ func buildPair(source []card, best *[5]card) int {
 // RESP: Is this actually a significant slowdown? profile before refactor
 func fillOutHand(source []card, best *[5]card, place int) {
 	b := best[:place]
-	for i := len(source) - 1; i > 0 && len(b) < 5; i-- {
-		if !containsCard(b, source[i]) {
-			b = append(b, source[i])
+	for _, c := range source {
+		if len(b) >= 5 {
+			break
+		}
+		if !containsCard(b, c) {
+			b = append(b, c)
 		}
 	}
 }
@@ -153,11 +165,3 @@ func containsCard(cards []card, target card) bool {
 	}
 	return false
 }
-
-// approaches for ranking hands:
-// - use pairs approach, which I currently am using
-// - build an "occurences [13][]card"
-//
-// Reasons for chosing each: pairs approach is already half done
-//
-// occurence approach uses easier logic.

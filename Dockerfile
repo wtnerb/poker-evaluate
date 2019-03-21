@@ -1,5 +1,7 @@
 # built from template https://www.cloudreach.com/blog/containerize-this-golang-dockerfiles/
 
+# when go to https and things inevitably break, check out https://blog.codeship.com/building-minimal-docker-containers-for-go-applications/
+
 FROM golang:alpine as builder
 RUN mkdir /build
 ADD . /go/src/build
