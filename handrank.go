@@ -36,7 +36,12 @@ func (r handRank) String() string {
 	return ranks[r]
 }
 
+// TODO: This can probably be combined with buildBestHand to be more
+// efficient. This is easier to reason as a human. Is there enough
+// performance overhead to make a refactor worthwhile?
 func rankHand(hand []card) handRank {
+	// Working with a list sorted by value (high to low) is easier
+	sort.Sort(h(hand))
 	pairs := numPairs(hand)
 	fl := isFlush(hand)
 	if fl && isStraightFlush(hand) {
@@ -77,7 +82,6 @@ func rankHand(hand []card) handRank {
 // pair, three of a kind, full house and four of a kind for the maximum
 // scoring set of 5 cards selected from the 7.
 func numPairs(hand []card) int {
-	sort.Sort(h(hand))
 	pairs := 0
 	for i := range hand {
 		for j := i + 1; j < len(hand) && hand[j].Value == hand[i].Value; j++ {

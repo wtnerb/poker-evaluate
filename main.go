@@ -41,6 +41,8 @@ func recieveTable(w http.ResponseWriter, r *http.Request) {
 // makes refering to the card type much easier
 type card = models.Card
 
+// TODO: Replace this with interface. Additionally, logic will flex when
+// model changes to new form
 func evaluateWinner(table models.Table) (models.TablePlayer, error) {
 	// if table.Players[0] == nil {
 	// 	panic("there are no players at the table!")
