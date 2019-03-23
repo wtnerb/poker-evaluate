@@ -190,6 +190,66 @@ func TestCompareBest(t *testing.T) {
 		{
 			[5]card{
 				newCard(KING, SPADE),
+				newCard(TEN, SPADE),
+				newCard(TEN, CLUB),
+				newCard(TEN, HEART),
+				newCard(FOUR, HEART),
+			},
+
+			[5]card{
+				newCard(TEN, HEART),
+				newCard(TEN, DIAMOND),
+				newCard(TEN, SPADE),
+				newCard(EIGHT, DIAMOND),
+				newCard(KING, CLUB),
+			},
+			threeOfAKind,
+			rightWins,
+			"Equal Three of a kind, eight beats four",
+		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
+				newCard(TEN, SPADE),
+				newCard(TEN, CLUB),
+				newCard(TEN, HEART),
+				newCard(KING, HEART),
+			},
+
+			[5]card{
+				newCard(TEN, HEART),
+				newCard(TEN, DIAMOND),
+				newCard(TEN, SPADE),
+				newCard(EIGHT, DIAMOND),
+				newCard(EIGHT, CLUB),
+			},
+			fullHouse,
+			leftWins,
+			"Kings full of tens beats eights full of tens",
+		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
+				newCard(TEN, SPADE),
+				newCard(TEN, CLUB),
+				newCard(TEN, HEART),
+				newCard(KING, HEART),
+			},
+
+			[5]card{
+				newCard(JACK, HEART),
+				newCard(JACK, DIAMOND),
+				newCard(JACK, SPADE),
+				newCard(EIGHT, DIAMOND),
+				newCard(EIGHT, CLUB),
+			},
+			fullHouse,
+			rightWins,
+			"eights full of jacks beats kings full of tens",
+		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
 				newCard(JACK, SPADE),
 				newCard(QUEEN, CLUB),
 				newCard(TEN, HEART),
