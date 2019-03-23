@@ -187,6 +187,26 @@ func TestCompareBest(t *testing.T) {
 			rightWins,
 			"Equal pairs, eight beats four",
 		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
+				newCard(JACK, SPADE),
+				newCard(QUEEN, CLUB),
+				newCard(TEN, HEART),
+				newCard(NINE, HEART),
+			},
+
+			[5]card{
+				newCard(ACE, HEART),
+				newCard(TWO, DIAMOND),
+				newCard(THREE, SPADE),
+				newCard(FOUR, DIAMOND),
+				newCard(FIVE, CLUB),
+			},
+			straight,
+			leftWins,
+			"A-5 straight less than 9-K straight",
+		},
 	}
 
 	for _, test := range tests {
