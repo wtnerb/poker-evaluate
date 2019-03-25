@@ -12,7 +12,7 @@ Regardless, version 0.1 of this service is to recieve a post request with the ta
 - [x] Server accepts JSON post requests with table data
 - [x] Can rank hands
 - [x] Can build best hand
-- [ ] Can compare hands of same rank
+- [x] Can compare hands of same rank
 - [ ] Can handle a tie
 - [x] Containerized
 - [ ] Deployed
@@ -20,4 +20,5 @@ Regardless, version 0.1 of this service is to recieve a post request with the ta
 - [ ] Keep test coverage over 90% while working
 
 ## Log
-2019-03-19 v0.1 server works, can compare hands of different rank, some error checking, test coverage 91%
+2019-03-19 v0.1 server works, can compare hands of different rank, some error checking, test coverage 91%  
+2019-03-25 v0.2 can now evaluate all types of hands against all other types of hands, test coverage 90.5%
