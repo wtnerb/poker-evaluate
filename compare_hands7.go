@@ -134,7 +134,7 @@ func compareThreeOfAKind(l, r []card) verdict {
 }
 
 func threeValue(cards []card) int {
-
+	sortIfNotSorted(cards)
 	for i := 0; i < len(cards)-2; i++ {
 		if cards[i].Value == cards[i+1].Value && cards[i].Value == cards[i+2].Value {
 			return int(cards[i].Value)
@@ -144,7 +144,23 @@ func threeValue(cards []card) int {
 }
 
 func compareTwoOfAKind(l, r []card) verdict {
-	return tie
+	sortIfNotSorted(l, r)
+	pairL, pairR := pairValue(l), pairValue(r)
+	if pairL < pairR {
+		return rightWins
+	}
+	if pairR < pairL {
+		return leftWins
+	}
+
+	pairL, pairR = pairValue(l[2:]), pairValue(r[2:])
+	if pairL < pairR {
+		return rightWins
+	}
+	if pairR < pairL {
+		return leftWins
+	}
+	return compareHighest(l, r)
 }
 
 // sortIfNotSorted checks each slice of cards provided and will sort the
