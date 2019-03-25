@@ -250,6 +250,26 @@ func TestCompareBest(t *testing.T) {
 		{
 			[5]card{
 				newCard(KING, SPADE),
+				newCard(TEN, SPADE),
+				newCard(NINE, CLUB),
+				newCard(TEN, HEART),
+				newCard(KING, HEART),
+			},
+
+			[5]card{
+				newCard(JACK, HEART),
+				newCard(JACK, DIAMOND),
+				newCard(NINE, SPADE),
+				newCard(TEN, DIAMOND),
+				newCard(TEN, CLUB),
+			},
+			twoPair,
+			leftWins,
+			"Kings are better than jacks",
+		},
+		{
+			[5]card{
+				newCard(KING, SPADE),
 				newCard(JACK, SPADE),
 				newCard(QUEEN, CLUB),
 				newCard(TEN, HEART),

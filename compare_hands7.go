@@ -27,24 +27,26 @@ func sevenCardCompare(left, right []card) verdict {
 }
 
 func compareBest(l, r [5]card, rank handRank) verdict {
-	sort.Sort(h(l[:]))
-	sort.Sort(h(r[:]))
+	sortIfNotSorted(l[:], r[:])
 	switch rank {
 	case highcard, flush:
-		return highest(l[:], r[:])
-	case pair:
+		return compareHighest(l[:], r[:])
+	case pair, fourOfAKind:
 		return comparePair(l[:], r[:])
 	case straight, straightFlush:
 		return compareStraight(l[:], r[:])
 	case threeOfAKind, fullHouse:
 		return compareThreeOfAKind(l[:], r[:])
+	case twoPair:
+		return compareTwoOfAKind(l[:], r[:]) // implement a compare function
 	}
 	return tie
 }
 
-// highest is given a sorted left and right hand and returns a verdict
+// compareHighest is given a sorted left and right hand and returns a verdict
 // on which hand wins
-func highest(l, r []card) verdict {
+func compareHighest(l, r []card) verdict {
+	sortIfNotSorted(l, r)
 	for i := range l {
 		if l[i].Value > r[i].Value {
 			return leftWins
@@ -59,6 +61,7 @@ func highest(l, r []card) verdict {
 // comparePair is given a sorted left and right hand and returns
 // a verdict on which hand wins
 func comparePair(l, r []card) verdict {
+	sortIfNotSorted(l, r)
 	lpair, rpair := pairValue(l), pairValue(r)
 	if lpair < rpair {
 		return rightWins
@@ -66,7 +69,7 @@ func comparePair(l, r []card) verdict {
 	if rpair < lpair {
 		return leftWins
 	}
-	return highest(l, r)
+	return compareHighest(l, r)
 }
 
 // pairValue is an inefficient double for loop, which could be
@@ -88,6 +91,7 @@ func pairValue(hand []card) int {
 }
 
 func compareStraight(l, r []card) verdict {
+	sortIfNotSorted(l, r)
 	if l[0].Value == models.ACE && l[len(l)-1].Value == 2 {
 		flipAce(l)
 		defer revertAce(l)
@@ -96,7 +100,7 @@ func compareStraight(l, r []card) verdict {
 		flipAce(r)
 		defer revertAce(r)
 	}
-	return highest(l, r)
+	return compareHighest(l, r)
 }
 
 // flipAce MUST be followed by a call to revertAce
@@ -117,6 +121,7 @@ func revertAce(cards []card) {
 }
 
 func compareThreeOfAKind(l, r []card) verdict {
+	sortIfNotSorted(l, r)
 	l3 := threeValue(l)
 	r3 := threeValue(r)
 	if l3 < r3 {
@@ -125,7 +130,7 @@ func compareThreeOfAKind(l, r []card) verdict {
 	if r3 < l3 {
 		return leftWins
 	}
-	return highest(l, r)
+	return compareHighest(l, r)
 }
 
 func threeValue(cards []card) int {
@@ -136,4 +141,23 @@ func threeValue(cards []card) int {
 		}
 	}
 	return 0
+}
+
+func compareTwoOfAKind(l, r []card) verdict {
+	return tie
+}
+
+// sortIfNotSorted checks each slice of cards provided and will sort the
+// ones that are not sorted. This is used to verify that only sorted
+// items are getting passed to functions that rely upon recieving cards
+// in a sorted order.
+func sortIfNotSorted(c ...[]card) {
+	for _, hand := range c {
+		target := h(hand)
+		if sort.IsSorted(target) {
+			continue
+		}
+
+		sort.Sort(target)
+	}
 }
