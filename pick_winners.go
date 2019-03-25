@@ -8,7 +8,7 @@ import (
 
 // TODO: Replace this with interface. Additionally, logic will flex when
 // model changes to new form
-func evaluateWinner(table models.Table) (models.TablePlayer, error) {
+func evaluateWinner(table models.Table) ([]byte, error) {
 	// if table.Players[0] == nil {
 	// 	panic("there are no players at the table!")
 	// }
@@ -20,17 +20,29 @@ func evaluateWinner(table models.Table) (models.TablePlayer, error) {
 		}
 	}
 	if len(activePlayers) == 0 {
-		return models.TablePlayer{}, errors.New("there are no active players")
+		return nil, errors.New("there are no active players")
 	}
 	if len(activePlayers) == 1 {
-		return activePlayers[0], nil
+		return []byte(activePlayers[0].ID), nil
 	}
 
-	best := activePlayers[0]
+	// Create a list of players with the cards required to do the comparison.
+	var players []p
 	for _, player := range activePlayers {
-		if win := sevenCardCompare(append(table.FaceUp, best.Cards...), append(table.FaceUp, best.Cards...)); win == 1 {
+		hand := buildBestHand(append(table.FaceUp, player.Cards...))
+		players = append(players, p{hand, []byte(player.ID)})
+	}
+
+	best := players[0]
+	for _, player := range players {
+		if winner := sevenCardCompare(player.best, best.best); leftWins == winner {
 			best = player
 		}
 	}
-	return best, nil
+	return best.id, nil
+}
+
+type p struct {
+	best bestHand
+	id   []byte
 }

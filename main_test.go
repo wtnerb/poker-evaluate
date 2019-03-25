@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	models "github.com/wtnerb/poker-models"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -57,18 +58,20 @@ func TestServer(t *testing.T) {
 			models.Table{
 				Players: []models.TablePlayer{
 					{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
 						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
 					},
 					// {
 					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
 					// },
 					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
 						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
 					},
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			[]byte(`["Brent"]`),
+			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
 			http.StatusOK,
 		},
 		{

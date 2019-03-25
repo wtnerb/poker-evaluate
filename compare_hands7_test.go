@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+// helper method translates verdicts into human readable strings when logging errors
 func (v verdict) String() string {
 	if v == leftWins {
 		return "left won"
@@ -19,51 +20,55 @@ func (v verdict) String() string {
 
 func TestSevenCardCompare(t *testing.T) {
 	tests := []struct {
-		left   []card
-		right  []card
+		left   bestHand
+		right  bestHand
 		winner verdict
 		desc   string
 	}{
 		{
-			[]card{
-				newCard(ACE, SPADE),
-				newCard(KING, DIAMOND),
-				newCard(TWO, HEART),
-				newCard(SEVEN, HEART),
-				newCard(TEN, CLUB),
-				newCard(FOUR, SPADE),
-				newCard(QUEEN, CLUB),
+			bestHand{
+				[5]card{
+					newCard(ACE, SPADE),
+					newCard(KING, DIAMOND),
+					newCard(TEN, CLUB),
+					newCard(FOUR, SPADE),
+					newCard(QUEEN, CLUB),
+				},
+				highcard,
 			},
-			[]card{
-				newCard(ACE, SPADE),
-				newCard(KING, DIAMOND),
-				newCard(TWO, HEART),
-				newCard(SEVEN, HEART),
-				newCard(TEN, CLUB),
-				newCard(EIGHT, DIAMOND),
-				newCard(KING, CLUB),
+			bestHand{
+				[5]card{
+					newCard(ACE, SPADE),
+					newCard(JACK, DIAMOND),
+					newCard(TEN, CLUB),
+					newCard(EIGHT, DIAMOND),
+					newCard(JACK, CLUB),
+				},
+				pair,
 			},
 			rightWins,
 			"pair beats highcard",
 		},
 		{
-			[]card{
-				newCard(ACE, SPADE),
-				newCard(SEVEN, DIAMOND),
-				newCard(TWO, HEART),
-				newCard(SEVEN, HEART),
-				newCard(TEN, CLUB),
-				newCard(FOUR, SPADE),
-				newCard(ACE, CLUB),
+			bestHand{
+				[5]card{
+					newCard(ACE, SPADE),
+					newCard(SEVEN, DIAMOND),
+					newCard(SEVEN, HEART),
+					newCard(TEN, CLUB),
+					newCard(ACE, CLUB),
+				},
+				twoPair,
 			},
-			[]card{
-				newCard(ACE, SPADE),
-				newCard(KING, DIAMOND),
-				newCard(TWO, HEART),
-				newCard(SEVEN, HEART),
-				newCard(TEN, CLUB),
-				newCard(EIGHT, DIAMOND),
-				newCard(KING, CLUB),
+			bestHand{
+				[5]card{
+					newCard(ACE, SPADE),
+					newCard(KING, DIAMOND),
+					newCard(TEN, CLUB),
+					newCard(EIGHT, DIAMOND),
+					newCard(KING, CLUB),
+				},
+				pair,
 			},
 			leftWins,
 			"two pair beats pair",
