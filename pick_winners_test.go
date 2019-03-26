@@ -14,7 +14,7 @@ func TestWinner(t *testing.T) {
 	// this was too big to be a single unit
 	tests := []struct {
 		table    models.Table
-		expected models.TablePlayer
+		expected [][]byte
 	}{
 		{
 			models.Table{
@@ -30,9 +30,8 @@ func TestWinner(t *testing.T) {
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			models.TablePlayer{
-				ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
-				Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
+			[][]byte{
+				[]byte(bson.ObjectIdHex("5c6482805508c93011b4e333")),
 			},
 		},
 		{
@@ -49,9 +48,8 @@ func TestWinner(t *testing.T) {
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			models.TablePlayer{
-				ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
-				Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+			[][]byte{
+				[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
 			},
 		},
 	}
@@ -60,8 +58,8 @@ func TestWinner(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if diff := bytes.Compare([]byte(test.expected.ID), actual); diff != 0 {
-			t.Error("wrong person won. Expected", test.expected.ID, "got", actual, "\n", test.table)
+		if diff := bytes.Compare(test.expected[0], actual.Ids[0]); diff != 0 {
+			t.Error("wrong person won. Expected", test.expected, "got", actual, "\n", test.table)
 		}
 	}
 }

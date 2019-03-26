@@ -26,7 +26,7 @@ func recieveTable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	winner, err := evaluateWinner(table)
+	winners, err := evaluateWinner(table)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("invalid game state " + err.Error()))
@@ -34,8 +34,13 @@ func recieveTable(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(winner)
+	write := json.NewEncoder(w)
+	_ = write.Encode(winners)
 }
 
 // makes refering to the card type much easier
 type card = models.Card
+
+type RespObj struct {
+	Ids [][]byte `json:"winners"`
+}

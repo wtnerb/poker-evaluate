@@ -21,4 +21,4 @@ Regardless, version 0.1 of this service is to recieve a post request with the ta
 
 ## Log
 2019-03-19 v0.1 server works, can compare hands of different rank, some error checking, test coverage 91%  
-2019-03-25 v0.2 can now evaluate all types of hands against all other types of hands, test coverage 90.5%
+<!-- 2019-03-25 v0.2 can now evaluate all types of hands against all other types of hands, test coverage 90.5% -->

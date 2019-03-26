@@ -114,8 +114,16 @@ func TestServer(t *testing.T) {
 			t.Error("response code was not desired. Expected", test.status, "recieved", res.Code)
 		}
 
-		if bytes.Compare(test.expected, res.Body.Bytes()) != 0 {
-			t.Error("reponse was wrong. Expected\n", string(test.expected), "\ngot", string(res.Body.Bytes()))
+		var resp RespObj
+		err = json.Unmarshal(res.Body.Bytes(), &resp)
+		if err != nil {
+			if 0 != bytes.Compare(test.expected, res.Body.Bytes()) {
+				t.Error("Error response test is not what was expected. Expected:", string(test.expected), "\nrecieved:", string(res.Body.Bytes()))
+			}
+			return
+		}
+		if bytes.Compare(test.expected, resp.Ids[0]) != 0 {
+			t.Error("reponse was wrong. Expected\n", test.expected, "\ngot", resp)
 		}
 	}
 }
