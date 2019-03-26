@@ -116,6 +116,8 @@ func TestServer(t *testing.T) {
 
 		var resp RespObj
 		err = json.Unmarshal(res.Body.Bytes(), &resp)
+		// resposes will be in the respObj form. Getting something else
+		// should mean an error message (likely in plain text) is the response
 		if err != nil {
 			if 0 != bytes.Compare(test.expected, res.Body.Bytes()) {
 				t.Error("Error response test is not what was expected. Expected:", string(test.expected), "\nrecieved:", string(res.Body.Bytes()))

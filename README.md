@@ -7,7 +7,15 @@ Notably, how to handle ties or when someone has gone all-in add extra complexity
 
 Regardless, version 0.1 of this service is to recieve a post request with the table state information and (after validating that it is a game end table state) return with the winner of the hand.
 
-## goals
+## Usage
+To use this API, ping the adress with a POST request and the body of an
+[models.Table](https://github.com/wtnerb/poker-models/blob/master/table.go) json object. The response will either be a list of 
+[]byte slices that have the id's of the winning players OR it will be
+plain text explaination of why the service failed to fulfill the request,
+accompanied by an appropriate error code.
+
+In later versions, and by the time of the stable 1.0 release, it is possible this will be refactored to recieve a "pot" object with a list of participating players. The logic for building 7-cards hands probably belongs in the layer of the requester, not this service.
+
 ## goals
 - [x] Server accepts JSON post requests with table data
 - [x] Can rank hands
