@@ -39,15 +39,6 @@ func newCard(v, s int8) card {
 	return card(models.NewCard(v, s))
 }
 
-func makeCards(vals [][2]int8) (cs []card) {
-	for _, c := range vals {
-		cs = append(cs, newCard(c[0], c[1]))
-	}
-	return
-}
-
-type cards [][2]int8
-
 func makeTestRequest(t *testing.T, table models.Table) *httptest.ResponseRecorder {
 	JSON, err := json.Marshal(table)
 
@@ -114,11 +105,8 @@ func TestServer200s(t *testing.T) {
 				Players: []models.TablePlayer{
 					{
 						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
-						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
+						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
 					},
-					// {
-					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
-					// },
 					models.TablePlayer{
 						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
 						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
@@ -133,11 +121,8 @@ func TestServer200s(t *testing.T) {
 				Players: []models.TablePlayer{
 					{
 						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
-						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
+						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
 					},
-					// {
-					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
-					// },
 					models.TablePlayer{
 						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
 						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
