@@ -48,18 +48,66 @@ func makeCards(vals [][2]int8) (cs []card) {
 
 type cards [][2]int8
 
-func TestServer(t *testing.T) {
-	r1, _ := json.Marshal(RespObj{
-		[][]byte{
-			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e332")),
-			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
-		},
-	})
+func makeTestRequest(t *testing.T, table models.Table) *httptest.ResponseRecorder {
+	JSON, err := json.Marshal(table)
 
+	if err != nil {
+		t.Log("failed while marshelling the json")
+		t.Fatal(err)
+	}
+
+	req, err := http.NewRequest("POST", "http://localhost"+port+"/", strings.NewReader(string(JSON)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res := httptest.NewRecorder()
+
+	recieveTable(res, req)
+	return res
+}
+func TestServerErrors(t *testing.T) {
 	tests := []struct {
 		table    models.Table
 		expected []byte
 		status   int
+	}{
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: true,
+					},
+					models.TablePlayer{
+						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: true,
+					},
+				},
+				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
+			},
+			[]byte(`invalid game state there are no active players`),
+			http.StatusBadRequest,
+		},
+	}
+
+	for _, test := range tests {
+		res := makeTestRequest(t, test.table)
+
+		if res.Code != test.status {
+			t.Log(res)
+			t.Error("response code was not desired. Expected", test.status, "recieved", res.Code)
+		}
+
+		if 0 != bytes.Compare(test.expected, res.Body.Bytes()) {
+			t.Error("Error response test is not what was expected. Expected:", string(test.expected), "\nrecieved:", string(res.Body.Bytes()))
+		}
+
+	}
+}
+func TestServer200s(t *testing.T) {
+
+	tests := []struct {
+		table    models.Table
+		expected []bson.ObjectId
 	}{
 		{
 			models.Table{
@@ -78,8 +126,7 @@ func TestServer(t *testing.T) {
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
-			http.StatusOK,
+			[]bson.ObjectId{bson.ObjectIdHex("5c6482805508c93011b4e375")},
 		},
 		{
 			models.Table{
@@ -102,61 +149,45 @@ func TestServer(t *testing.T) {
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			r1,
-			http.StatusOK,
-		},
-		{
-			models.Table{
-				Players: []models.TablePlayer{
-					{
-						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: true,
-					},
-					models.TablePlayer{
-						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: true,
-					},
-				},
-				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
+			[]bson.ObjectId{
+				bson.ObjectIdHex("5c6482805508c93011b4e332"),
+				bson.ObjectIdHex("5c6482805508c93011b4e375"),
 			},
-			[]byte(`invalid game state there are no active players`),
-			http.StatusBadRequest,
 		},
 	}
 
 	for _, test := range tests {
+		res := makeTestRequest(t, test.table)
 
-		JSON, err := json.Marshal(test.table)
-
-		if err != nil {
-			t.Error("failed while marshelling the json")
-		}
-
-		req, err := http.NewRequest("POST", "http://localhost"+port+"/", strings.NewReader(string(JSON)))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		res := httptest.NewRecorder()
-
-		recieveTable(res, req)
-
-		if res.Code != test.status {
-			t.Log(req)
+		if res.Code != http.StatusOK {
 			t.Log(res)
-			t.Error("response code was not desired. Expected", test.status, "recieved", res.Code)
+			t.Error("response code was not desired. Expected 200, recieved", res.Code)
 		}
-
-		var resp RespObj
-		err = json.Unmarshal(res.Body.Bytes(), &resp)
+		var expectation, actual RespObj
+		for _, id := range test.expected {
+			expectation.Ids = append(expectation.Ids, []byte(id))
+		}
+		err := json.Unmarshal(res.Body.Bytes(), &actual)
 		// resposes will be in the respObj form. Getting something else
 		// should mean an error message (likely in plain text) is the response
 		if err != nil {
-			if 0 != bytes.Compare(test.expected, res.Body.Bytes()) {
-				t.Error("Error response test is not what was expected. Expected:", string(test.expected), "\nrecieved:", string(res.Body.Bytes()))
-			}
-			return
+			t.Fatal("failed to unmarshel sever response")
+
 		}
-		if bytes.Compare(test.expected, resp.Ids[0]) != 0 {
-			t.Error("reponse was wrong. Expected\n", test.expected, "\ngot", resp)
+		if numWinners := len(actual.Ids); len(expectation.Ids) != numWinners {
+			t.Error("wrong number of ids in response. Expected", numWinners, "recieved", len(expectation.Ids))
+		}
+		for _, id := range expectation.Ids {
+			found := false
+			for _, a := range actual.Ids {
+				if bytes.Compare(id, a) == 0 {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Error("An expected id was not found in the response! Expected to find", string(id))
+			}
 		}
 	}
 }
