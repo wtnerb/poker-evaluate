@@ -49,6 +49,13 @@ func makeCards(vals [][2]int8) (cs []card) {
 type cards [][2]int8
 
 func TestServer(t *testing.T) {
+	r1, _ := json.Marshal(RespObj{
+		[][]byte{
+			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e332")),
+			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
+		},
+	})
+
 	tests := []struct {
 		table    models.Table
 		expected []byte
@@ -72,6 +79,30 @@ func TestServer(t *testing.T) {
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
 			[]byte(bson.ObjectIdHex("5c6482805508c93011b4e375")),
+			http.StatusOK,
+		},
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
+						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
+					},
+					// {
+					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+					// },
+					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
+						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
+					},
+					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e332"),
+						Name: "Jason", Cards: []card{newCard(TWO, DIAMOND), newCard(TWO, SPADE)}, Folded: false,
+					},
+				},
+				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
+			},
+			r1,
 			http.StatusOK,
 		},
 		{
@@ -126,120 +157,6 @@ func TestServer(t *testing.T) {
 		}
 		if bytes.Compare(test.expected, resp.Ids[0]) != 0 {
 			t.Error("reponse was wrong. Expected\n", test.expected, "\ngot", resp)
-		}
-	}
-}
-
-func TestRankHand(t *testing.T) {
-	tests := []struct {
-		hand []card
-		rank handRank
-	}{
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(SEVEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(QUEEN, HEART),
-			}, pair,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(QUEEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(TWO, DIAMOND),
-			}, threeOfAKind,
-		},
-		{
-			[]card{
-				newCard(TWO, SPADE),
-				newCard(TWO, HEART),
-				newCard(THREE, SPADE),
-				newCard(FIVE, SPADE),
-				newCard(QUEEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(TWO, DIAMOND),
-			}, flush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(JACK, HEART),
-			}, twoPair,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(JACK, HEART),
-			}, straight,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, HEART),
-			}, straight,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, CLUB),
-				newCard(THREE, CLUB),
-				newCard(SIX, CLUB),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, DIAMOND),
-			}, straightFlush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, CLUB),
-				newCard(THREE, CLUB),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, CLUB),
-				newCard(FIVE, DIAMOND),
-			}, flush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(ACE, SPADE), //testing that Ace's will switch to a one when needed
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, HEART),
-			}, straight,
-		},
-	}
-
-	for _, test := range tests {
-		actual := rankHand(test.hand)
-		if actual != test.rank {
-			t.Errorf("Hand ranked incorrectly. %v\nranked as %v should be %v", test.hand, actual, test.rank)
 		}
 	}
 }
