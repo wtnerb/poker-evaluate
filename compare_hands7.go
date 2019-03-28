@@ -14,9 +14,7 @@ const (
 
 type verdict int
 
-func sevenCardCompare(left, right []card) verdict {
-	l := buildBestHand(left)
-	r := buildBestHand(right)
+func sevenCardCompare(l, r bestHand) verdict {
 	if l.rank > r.rank {
 		return leftWins
 	}
@@ -38,7 +36,7 @@ func compareBest(l, r [5]card, rank handRank) verdict {
 	case threeOfAKind, fullHouse:
 		return compareThreeOfAKind(l[:], r[:])
 	case twoPair:
-		return compareTwoOfAKind(l[:], r[:]) // implement a compare function
+		return compareTwoOfAKind(l[:], r[:])
 	}
 	return tie
 }

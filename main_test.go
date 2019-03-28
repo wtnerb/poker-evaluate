@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	models "github.com/wtnerb/poker-models"
+	"gopkg.in/mgo.v2/bson"
 )
 
 const (
@@ -38,39 +39,30 @@ func newCard(v, s int8) card {
 	return card(models.NewCard(v, s))
 }
 
-func makeCards(vals [][2]int8) (cs []card) {
-	for _, c := range vals {
-		cs = append(cs, newCard(c[0], c[1]))
+func makeTestRequest(t *testing.T, table models.Table) *httptest.ResponseRecorder {
+	JSON, err := json.Marshal(table)
+
+	if err != nil {
+		t.Log("failed while marshelling the json")
+		t.Fatal(err)
 	}
-	return
+
+	req, err := http.NewRequest("POST", "http://localhost"+port+"/", strings.NewReader(string(JSON)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	res := httptest.NewRecorder()
+
+	recieveTable(res, req)
+	return res
 }
-
-type cards [][2]int8
-
-func TestServer(t *testing.T) {
+func TestServerErrors(t *testing.T) {
 	tests := []struct {
 		table    models.Table
 		expected []byte
 		status   int
 	}{
-		{
-			models.Table{
-				Players: []models.TablePlayer{
-					{
-						Name: "Brent", Cards: makeCards(cards{{TWO, HEART}, {TWO, CLUB}}), Folded: false,
-					},
-					// {
-					// 	Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
-					// },
-					models.TablePlayer{
-						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
-					},
-				},
-				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
-			},
-			[]byte(`["Brent"]`),
-			http.StatusOK,
-		},
 		{
 			models.Table{
 				Players: []models.TablePlayer{
@@ -89,195 +81,98 @@ func TestServer(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
-		JSON, err := json.Marshal(test.table)
-
-		if err != nil {
-			t.Error("failed while marshelling the json")
-		}
-
-		req, err := http.NewRequest("POST", "http://localhost"+port+"/", strings.NewReader(string(JSON)))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		res := httptest.NewRecorder()
-
-		recieveTable(res, req)
+		res := makeTestRequest(t, test.table)
 
 		if res.Code != test.status {
-			t.Log(req)
 			t.Log(res)
 			t.Error("response code was not desired. Expected", test.status, "recieved", res.Code)
 		}
 
-		if bytes.Compare(test.expected, res.Body.Bytes()) != 0 {
-			t.Error("reponse was wrong. Expected\n", string(test.expected), "\ngot", string(res.Body.Bytes()))
+		if 0 != bytes.Compare(test.expected, res.Body.Bytes()) {
+			t.Error("Error response test is not what was expected. Expected:", string(test.expected), "\nrecieved:", string(res.Body.Bytes()))
 		}
+
 	}
 }
+func TestServer200s(t *testing.T) {
 
-func TestWinner(t *testing.T) {
-	// At the moment, this is a dummy test. Started working, realized
-	// this was too big to be a single unit
 	tests := []struct {
 		table    models.Table
-		expected models.TablePlayer
+		expected []bson.ObjectId
 	}{
 		{
 			models.Table{
 				Players: []models.TablePlayer{
 					{
-						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: true,
-					},
-					models.TablePlayer{
-						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
-					},
-				},
-				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
-			},
-			models.TablePlayer{
-				Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
-			},
-		},
-		{
-			models.Table{
-				Players: []models.TablePlayer{
-					{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
 						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
 					},
 					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
 						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
 					},
 				},
 				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
 			},
-			models.TablePlayer{
-				Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+			[]bson.ObjectId{bson.ObjectIdHex("5c6482805508c93011b4e375")},
+		},
+		{
+			models.Table{
+				Players: []models.TablePlayer{
+					{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e375"),
+						Name: "Brent", Cards: []card{newCard(TWO, HEART), newCard(TWO, CLUB)}, Folded: false,
+					},
+					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e333"),
+						Name: "Devin", Cards: []card{newCard(THREE, SPADE), newCard(FOUR, HEART)}, Folded: false,
+					},
+					models.TablePlayer{
+						ID:   bson.ObjectIdHex("5c6482805508c93011b4e332"),
+						Name: "Jason", Cards: []card{newCard(TWO, DIAMOND), newCard(TWO, SPADE)}, Folded: false,
+					},
+				},
+				FaceUp: []card{newCard(FIVE, SPADE), newCard(JACK, HEART), newCard(KING, CLUB), newCard(SEVEN, DIAMOND), newCard(NINE, DIAMOND)},
+			},
+			[]bson.ObjectId{
+				bson.ObjectIdHex("5c6482805508c93011b4e332"),
+				bson.ObjectIdHex("5c6482805508c93011b4e375"),
 			},
 		},
 	}
+
 	for _, test := range tests {
-		actual, err := evaluateWinner(test.table)
+		res := makeTestRequest(t, test.table)
+
+		if res.Code != http.StatusOK {
+			t.Log(res)
+			t.Error("response code was not desired. Expected 200, recieved", res.Code)
+		}
+		var expectation, actual RespObj
+		for _, id := range test.expected {
+			expectation.Ids = append(expectation.Ids, []byte(id))
+		}
+		err := json.Unmarshal(res.Body.Bytes(), &actual)
+		// resposes will be in the respObj form. Getting something else
+		// should mean an error message (likely in plain text) is the response
 		if err != nil {
-			t.Error(err)
-		}
-		if actual.Name != test.expected.Name {
-			t.Error("wrong person won. Expected", test.expected.Name, "got", actual.Name, "\n", test.table)
-		}
-	}
-}
+			t.Fatal("failed to unmarshel sever response")
 
-func TestRankHand(t *testing.T) {
-	tests := []struct {
-		hand []card
-		rank handRank
-	}{
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(SEVEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(QUEEN, HEART),
-			}, pair,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(QUEEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(TWO, DIAMOND),
-			}, threeOfAKind,
-		},
-		{
-			[]card{
-				newCard(TWO, SPADE),
-				newCard(TWO, HEART),
-				newCard(THREE, SPADE),
-				newCard(FIVE, SPADE),
-				newCard(QUEEN, SPADE),
-				newCard(JACK, SPADE),
-				newCard(TWO, DIAMOND),
-			}, flush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(TWO, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(FIVE, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(JACK, HEART),
-			}, twoPair,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(JACK, HEART),
-			}, straight,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, HEART),
-			}, straight,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, CLUB),
-				newCard(THREE, CLUB),
-				newCard(SIX, CLUB),
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, DIAMOND),
-			}, straightFlush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, CLUB),
-				newCard(THREE, CLUB),
-				newCard(SIX, SPADE),
-				newCard(FIVE, CLUB),
-				newCard(JACK, CLUB),
-				newCard(FIVE, DIAMOND),
-			}, flush,
-		},
-		{
-			[]card{
-				newCard(TWO, CLUB),
-				newCard(FOUR, HEART),
-				newCard(THREE, DIAMOND),
-				newCard(ACE, SPADE), //testing that Ace's will switch to a one when needed
-				newCard(FIVE, CLUB),
-				newCard(JACK, SPADE),
-				newCard(FIVE, HEART),
-			}, straight,
-		},
-	}
-
-	for _, test := range tests {
-		actual := rankHand(test.hand)
-		if actual != test.rank {
-			t.Errorf("Hand ranked incorrectly. %v\nranked as %v should be %v", test.hand, actual, test.rank)
+		}
+		if numWinners := len(actual.Ids); len(expectation.Ids) != numWinners {
+			t.Error("wrong number of ids in response. Expected", numWinners, "recieved", len(expectation.Ids))
+		}
+		for _, id := range expectation.Ids {
+			found := false
+			for _, a := range actual.Ids {
+				if bytes.Compare(id, a) == 0 {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Error("An expected id was not found in the response! Expected to find", string(id))
+			}
 		}
 	}
 }
